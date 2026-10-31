@@ -24,6 +24,7 @@ from launch.signin import signin_env
 from launch.workspace import REPO, SKILL_MD, build_prompt, prepare_workspace
 
 HERE = Path(__file__).resolve().parent
+TASK = HERE / "task"
 IMAGE = "ids-experiment"
 MODEL, EFFORT = "claude-sonnet-5-5", "high"
 MAX_TURNS, MAX_BUDGET_USD, WALL_CLOCK_S = 1000, 100.0, 14400
@@ -50,6 +51,12 @@ def build_image() -> str:
                           capture_output=True, text=True, check=True).stdout.strip()
 
 
+def make_workspaces(csv: Path) -> dict[str, Path]:
+    """Both sides get the data and the same dataset.md the brief's writer saw."""
+    files = {"dataset.md": (TASK / "dataset.md").read_text()}
+    return {side: prepare_workspace(side, csv, SKILL_MD, files=files) for side in SIDES}
+
+
 def main() -> None:
     p = argparse.ArgumentParser()
     p.add_argument("--check", action="store_true", help="trivial prompt, to compare system prompts")
@@ -62,7 +69,7 @@ def main() -> None:
         prompts = {side: build_prompt(side, *CHECK_PARTS) for side in SIDES}
         run_args = ["--max-turns", "2", "--max-budget-usd", "1"]
     else:
-        brief = (HERE / "task/brief.md").read_text()
+        brief = (TASK / "brief.md").read_text()
         wrapper = (HERE / "prompts/wrapper.md").read_text()
         prompts = {side: build_prompt(side, wrapper, brief) for side in SIDES}
         run_args = ["--max-turns", str(MAX_TURNS), "--max-budget-usd", str(MAX_BUDGET_USD)]
@@ -74,7 +81,7 @@ def main() -> None:
     if run_dir.exists():
         raise SystemExit(f"{run_dir} already exists")
 
-    workspaces = {side: prepare_workspace(side, CSV, SKILL_MD) for side in SIDES}
+    workspaces = make_workspaces(CSV)
     outs = {side: Path(tempfile.mkdtemp(prefix="out-")) for side in SIDES}
     ids, started = {}, {}
     for side in SIDES:  # back to back, so both start within a second

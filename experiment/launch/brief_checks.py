@@ -6,9 +6,8 @@ import json
 import re
 from pathlib import Path
 
-MAX_WORDS = 400
+MAX_WORDS = 500
 NUMBERED = re.compile(r"^\d+\.\s")
-HEADED_QUESTION = re.compile(r"^#+ .*\?\s*$")
 BACKTICKED = re.compile(r"`([A-Za-z_][A-Za-z0-9_]*)`")
 SNAKE_CASE = re.compile(r"\b[a-z][a-z0-9]*(?:_[a-z0-9]+)+\b")
 # The writer may only read dataset.md, so any mention of the portal or the dataset ID in
@@ -17,8 +16,9 @@ DATA_MARKERS = ("cityofchicago.org", "wrvz-psew")
 
 
 def count_questions(text: str) -> int:
+    """Numbered items or headings that ask something; a numbered deliverable is not a question."""
     return sum(1 for line in text.splitlines()
-               if NUMBERED.match(line) or HEADED_QUESTION.match(line))
+               if (NUMBERED.match(line) or line.startswith("#")) and "?" in line)
 
 
 def check_brief(text: str, columns: set[str]) -> list[str]:

@@ -156,3 +156,17 @@ def test_check_prompts_have_the_pairs_shape():
     import run_pair
     prompts = {side: build_prompt(side, *run_pair.CHECK_PARTS) for side in ("control", "skill")}
     assert "\n\n" in prompts["control"] and prompts["skill"] == "/iterative-data-science " + prompts["control"]
+
+
+def test_both_sides_get_the_same_dataset_md(tmp_path, monkeypatch, csv):
+    import run_pair
+    (tmp_path / "dataset.md").write_text("# Columns\n")
+    monkeypatch.setattr(run_pair, "TASK", tmp_path)
+    workspaces = run_pair.make_workspaces(csv)
+    try:
+        for side in ("control", "skill"):
+            assert (workspaces[side] / "dataset.md").read_text() == "# Columns\n"
+            assert (workspaces[side] / "trips.csv").exists()
+    finally:
+        for w in workspaces.values():
+            shutil.rmtree(w)

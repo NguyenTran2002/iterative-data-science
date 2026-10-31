@@ -8,6 +8,7 @@ again from scratch.
 
     uv run python run_task_writer.py
 """
+import hashlib
 import json
 import os
 import shutil
@@ -40,10 +41,13 @@ def main() -> None:
     image_id = build_image()
 
     run_id = utc_now("%Y-%m-%dT%H%MZ")
-    workspace = prepare_workspace("control", None, SKILL_MD, files={"dataset.md": dataset_md})
+    environment_md = (HERE / "prompts/environment.md").read_text()
+    instructions = (HERE / "prompts/task_writer.md").read_text()
+    workspace = prepare_workspace("control", None, SKILL_MD,
+                                  files={"dataset.md": dataset_md, "environment.md": environment_md})
     out = Path(tempfile.mkdtemp(prefix="out-"))
     started = utc_now()
-    cid = start(IMAGE, workspace, out, (HERE / "prompts/task_writer.md").read_text(), RUN_ARGS, signin)
+    cid = start(IMAGE, workspace, out, instructions, RUN_ARGS, signin)
     print(f"Started task writer {run_id}: {cid[:12]}", flush=True)
     outcome = wait_all([cid], BACKSTOP_S)[cid]
     finish(cid, out)
@@ -56,7 +60,9 @@ def main() -> None:
     reasons += check_no_data_access(dest / "messages.jsonl")
     verdict = {"run_id": run_id, "started": started, "ended": utc_now(), "outcome": outcome,
                "image_id": image_id, "run_args": RUN_ARGS, "signin_method": signin[0],
-               "redactions": redacted, "passed": not reasons, "reasons": reasons}
+               "redactions": redacted, "passed": not reasons, "reasons": reasons,
+               "instructions_sha256": hashlib.sha256(instructions.encode()).hexdigest(),
+               "environment_md_sha256": hashlib.sha256(environment_md.encode()).hexdigest()}
     (dest / "verdict.json").write_text(json.dumps(verdict, indent=2) + "\n")
 
     if reasons:
@@ -67,6 +73,7 @@ def main() -> None:
         (rejected / "reasons.json").write_text(json.dumps(reasons, indent=2) + "\n")
         sys.exit("Rejected: " + "; ".join(reasons))
     shutil.copyfile(brief, TASK / "brief.md")
+    shutil.copyfile(dest / "workspace/dataset.md", TASK / "dataset.md")  # the pair gets the same file
     print(f"Accepted: task/brief.md (run record in {dest})")
 
 

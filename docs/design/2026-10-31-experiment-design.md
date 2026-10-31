@@ -267,3 +267,13 @@ Run on the author's machine with throwaway scripts; raw API request bodies captu
 - The skill loads from a project's `.claude/skills/` folder and through the SDK's `plugins` option. Called by name, its full text is in the first request; with a trivial prompt and no slash command it was not loaded.
 - A small notebook task with the skill: 11 turns, 58 seconds, $0.14 estimated. The agent executed the notebook with `jupyter nbconvert`, opened its saved PNG (the image reached the model), and caught a planted 999 °F value.
 - On the author's machine, plan sign-in added account context to the conversation (the account's email address and the global git user name). Inside the container there is no git configuration; the system-prompt check (§6, step 4) records what account context remains. Whatever it is, it is the same on both sides.
+
+## 12. Amendments
+
+**2026-10-31, after five rejected brief drafts (author's decision).** All five drafts from the original setup failed the length check (682 to 912 words), because the writer's instructions never stated the limits it was checked against. Its brief also pointed the analyst to `dataset.md`, which the analyst's folder did not hold. The author judged that the writers of the experiment, not the clean-room writer, had left out the practical facts a real brief carries. Changed before any further draft:
+
+- The writer's folder also holds `environment.md` (`experiment/prompts/environment.md`). It states the facts of the analyst's setup: one folder with `trips.csv` and `dataset.md`, Python 3.13 and the installed packages, internet access, `analysis.ipynb` as the deliverable, and no one available for questions. It says nothing about who the analyst is or how to work, so it cannot overlap the skill.
+- The writer's instructions now name `environment.md`, and state the limits the checks enforce: three or four questions, under 500 words. The word check moves from 400 to 500 to leave room for the logistics.
+- A question is now counted only where a numbered item or heading contains a question mark, so numbered deliverables no longer count.
+- Both sides of the pair get the same `dataset.md` the accepted brief's writer saw (`experiment/task/dataset.md`), next to `trips.csv`.
+- The five earlier drafts stay published as rejected under the original setup.

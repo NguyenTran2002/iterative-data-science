@@ -36,3 +36,7 @@ All five drafts so far failed the under-400-words check. The writer's instructio
 - **Starts:** 22:01:21.507Z and 22:01:21.676Z, 0.17 s apart. Both exited 0 after one turn, at an estimated $0.02 and $0.03.
 - **Redactions:** 0. No data files were held back.
 - **Account context:** the only email addresses in either side's raw requests are `@anthropic.com` addresses; no account email or git identity reached the containers.
+
+## 2026-10-31T22:15Z: Brief setup rewritten before redrafting
+
+The author's decision after the five rejected drafts: the experiment's own setup, not the clean-room writer, had left out the practical facts a real brief carries. The clean-room writer gets no data, but should get the infrastructure the experiment runs on, and the analyst should get the logistics a real brief carries. Spec section 12 records the changes: `environment.md` for the writer, the limits stated in its instructions with the word cap moved to 500, a question counter that skips numbered deliverables, and `dataset.md` in both sides' folders. Before this, the author asked to use draft 1 as is; that was set aside in favor of the rewrite.

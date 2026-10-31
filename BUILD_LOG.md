@@ -46,3 +46,28 @@ The author's decision after the five rejected drafts: the experiment's own setup
 - The first draft under the rewritten setup (spec section 12) passed every check: four questions, 489 words, only listed columns named, no access to the portal or the dataset. Run `experiment/task/runs/2026-10-31T2229Z/`: 7 turns, an estimated $0.19, 0 redactions.
 - Committed as `experiment/task/brief.md`, with the `dataset.md` the writer saw as `experiment/task/dataset.md`; both sides of the pair get that file.
 - Caps reviewed against the brief before the pair: 1,000 turns, an estimated $100 and 4 hours per side, unchanged. The brief asks for descriptive work on 135,768 rows, so each cap is expected to sit far above what a side uses.
+
+## 2026-10-31T22:30Z: The first pair
+
+Run `runs/2026-10-31T2230Z/`. Starts: 22:30:30.412Z (control) and 22:30:30.581Z (skill), 0.17 s apart. Both exited 0 with status `success`, far inside every cap. 0 redactions; no files held back from git. The two sides received the same system prompt (6,499 characters, SHA-256 `279e494a…6b92eb6`); the SKILL.md text was in the skill side's first request only.
+
+Counts from `metrics.json`, computed by the committed `metrics.py`:
+
+| | Control | Skill |
+|---|---|---|
+| Turns | 26 | 34 |
+| Duration | 322 s | 372 s |
+| Estimated cost | $0.77 | $0.87 |
+| Executions of the notebook | 5 | 17 |
+| Cells per execution | 16, 16, 16, 16, 16 | 1 to 3 |
+| Reworked cells | 0 | 5 |
+| Cells mixing text and image output | 3 | 0 |
+| Inline images in final notebook | 6 | 4 |
+| Image files saved in the workspace | 0 | 4 |
+| Distinct image files opened with Read | 5 | 4 |
+| Tool errors | 0 | 1 |
+| Cell errors in final notebook | 0 | 0 |
+| Fresh re-execution | passes | passes |
+| Web searches, fetches, package installs | 0 | 0 |
+
+Note for the write-up: the control side saved its figures under `/tmp/nbbuild/`, outside the workspace, and opened five of them there. The "image files saved in the workspace" count is 0 by the spec's definition, not because it made no figures. Both sides read Claude Code's built-in `dataviz` skill before charting.

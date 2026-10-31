@@ -17,7 +17,7 @@ from pathlib import Path
 from claude_agent_sdk import ResultError, ResultMessage, SystemMessage, query
 
 from runner.options import RunConfig, build_options, signin_method
-from runner.watcher import NotebookWatcher
+from runner.watcher import WorkspaceWatcher
 
 CAPS = ("error_max_turns", "error_max_budget_usd")
 ANALYSIS_PIP = Path("/opt/venv/bin/pip")
@@ -40,7 +40,7 @@ async def run(cfg: RunConfig, query_fn=query) -> dict:
     (out / "private/bodies").mkdir(parents=True, exist_ok=True)
     result = {"status": "error", "num_turns": None, "duration_ms": None, "total_cost_usd": None,
               "usage": None, "signin_method": signin_method()}
-    watcher = NotebookWatcher(cfg.workspace / "analysis.ipynb", out / "snapshots")
+    watcher = WorkspaceWatcher(cfg.workspace, out / "snapshots")
     watcher.start()
     stream = query_fn(prompt=cfg.prompt, options=build_options(cfg))
     log = (out / "messages.jsonl").open("a")

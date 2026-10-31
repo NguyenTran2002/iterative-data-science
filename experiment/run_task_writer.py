@@ -19,7 +19,7 @@ from data.dataset_md import fetch_metadata, render
 from data.draw_week import WEEK_JSON
 from launch.brief_checks import check_brief, check_no_data_access
 from launch.collect import collect_side
-from launch.docker import start, wait_all
+from launch.docker import finish, start, wait_all
 from launch.signin import signin_env
 from launch.workspace import SKILL_MD, prepare_workspace
 from run_pair import BACKSTOP_S, IMAGE, WALL_CLOCK_S, build_image, utc_now
@@ -46,6 +46,7 @@ def main() -> None:
     cid = start(IMAGE, workspace, out, (HERE / "prompts/task_writer.md").read_text(), RUN_ARGS, signin)
     print(f"Started task writer {run_id}: {cid[:12]}", flush=True)
     outcome = wait_all([cid], BACKSTOP_S)[cid]
+    finish(cid, out)
 
     dest = TASK / "runs" / run_id
     redacted = collect_side(out, workspace, dest, signin[1])

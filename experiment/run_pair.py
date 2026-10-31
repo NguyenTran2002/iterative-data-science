@@ -18,17 +18,19 @@ from pathlib import Path
 
 from data.draw_week import WEEK_JSON
 from data.fetch_week import CSV, verify
-from launch.collect import collect_side
-from launch.docker import start, wait_all
+from launch.collect import collect_side, hold_back
+from launch.docker import finish, start, wait_all
 from launch.signin import signin_env
-from launch.workspace import REPO, SKILL_COMMAND, SKILL_MD, build_prompt, prepare_workspace
+from launch.workspace import REPO, SKILL_MD, build_prompt, prepare_workspace
 
 HERE = Path(__file__).resolve().parent
 IMAGE = "ids-experiment"
 MODEL, EFFORT = "claude-sonnet-5-5", "high"
 MAX_TURNS, MAX_BUDGET_USD, WALL_CLOCK_S = 1000, 100.0, 14400
 BACKSTOP_S = WALL_CLOCK_S + 900  # the runner stops itself at WALL_CLOCK_S; this is in case it cannot
-CHECK_PROMPT = "Reply with exactly: OK"
+# Two parts joined like the pair's wrapper and brief, so the check exercises the same
+# multi-line slash-command argument the pair sends
+CHECK_PARTS = ("Reply with exactly: OK", "Do nothing else.")
 SIDES = ("control", "skill")
 
 
@@ -57,7 +59,7 @@ def main() -> None:
     verify(CSV, week["sha256"])
     signin = signin_env(os.environ)
     if check:
-        prompts = {"control": CHECK_PROMPT, "skill": f"{SKILL_COMMAND} {CHECK_PROMPT}"}
+        prompts = {side: build_prompt(side, *CHECK_PARTS) for side in SIDES}
         run_args = ["--max-turns", "2", "--max-budget-usd", "1"]
     else:
         brief = (HERE / "task/brief.md").read_text()
@@ -84,9 +86,7 @@ def main() -> None:
     ended = utc_now()
     redacted = {}
     for side in SIDES:
-        logs = subprocess.run(["docker", "logs", ids[side]], capture_output=True, text=True)
-        (outs[side] / "container.log").write_text(logs.stdout + logs.stderr)
-        subprocess.run(["docker", "rm", ids[side]], capture_output=True)
+        finish(ids[side], outs[side])
         redacted[side] = collect_side(outs[side], workspaces[side], run_dir / side, signin[1])
 
     init = {s: json.loads(p.read_text()) if (p := run_dir / s / "init.json").exists() else {}
@@ -102,6 +102,7 @@ def main() -> None:
         "skill_sha256": sha256(SKILL_MD),
         "signin_method": signin[0],
         "redactions": redacted,
+        "held_back_from_git": hold_back(run_dir),
     }
     (run_dir / "pair.json").write_text(json.dumps(pair, indent=2) + "\n")
     print(f"Done: {run_dir} " + json.dumps(pair["outcome"]))

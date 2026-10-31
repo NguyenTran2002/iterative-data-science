@@ -50,3 +50,10 @@ def wait_all(ids: list[str], timeout_s: int, poll_s: float = 1.0,
         elif len(outcome) < len(ids):
             time.sleep(poll_s)
     return {cid: outcome[cid] for cid in ids}
+
+
+def finish(cid: str, out_dir: Path) -> None:
+    """Keep the container's own output (a runner traceback, say), then remove it."""
+    logs = subprocess.run(["docker", "logs", cid], capture_output=True, text=True)
+    (out_dir / "container.log").write_text(logs.stdout + logs.stderr)
+    subprocess.run(["docker", "rm", cid], capture_output=True)

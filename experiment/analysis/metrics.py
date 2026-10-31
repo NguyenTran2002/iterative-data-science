@@ -148,6 +148,17 @@ def log_counts(messages: list[dict]) -> dict:
     }
 
 
+def other_notebooks(side_dir: Path) -> list[str]:
+    """Notebooks besides analysis.ipynb: snapshotted during the run or left in the workspace."""
+    other = side_dir / "snapshots/other"
+    seen = {str(p.parent.relative_to(other)) for p in other.rglob("snap-*.ipynb")} if other.exists() else set()
+    workspace = side_dir / "workspace"
+    if workspace.exists():
+        seen |= {str(p.relative_to(workspace)) for p in workspace.rglob("*.ipynb")
+                 if not any(part.startswith(".") for part in p.relative_to(workspace).parts)}
+    return sorted(seen - {"analysis.ipynb"})
+
+
 def compute(side_dir: Path) -> dict:
     workspace = side_dir / "workspace"
     notebook = workspace / "analysis.ipynb"
@@ -160,6 +171,7 @@ def compute(side_dir: Path) -> dict:
     m |= notebook_history(snapshots)
     m |= final_notebook(notebook) if notebook.exists() else {"notebook_valid": False, **EMPTY_FINAL}
     m["figures_created"] = len(figures)
+    m["other_notebooks"] = other_notebooks(side_dir)
     m |= log_counts(_messages(side_dir))
     m |= {
         "turns": result.get("num_turns"),

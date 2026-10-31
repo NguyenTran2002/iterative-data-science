@@ -114,3 +114,45 @@ def test_collect_side_scrubs_before_copying_and_drops_the_data(tmp_path):
     assert not (dest / "workspace/trips.csv").exists()
     assert (dest / "workspace/analysis.ipynb").exists() and (dest / "private/bodies/1.json").exists()
     assert all(b"sk-secret" not in p.read_bytes() for p in dest.rglob("*") if p.is_file())
+
+
+def test_collect_side_keeps_symlinks_as_links(tmp_path):
+    from launch.collect import collect_side
+    out, ws, dest = tmp_path / "out", tmp_path / "ws", tmp_path / "runs/x/control"
+    out.mkdir()
+    ws.mkdir()
+    (ws / "dangling").symlink_to("/home/analyst/work/.venv/bin/python")
+    (ws / "env").symlink_to("/proc/self/environ")
+    collect_side(out, ws, dest, "sk-secret")
+    assert (dest / "workspace/dangling").is_symlink() and (dest / "workspace/env").is_symlink()
+
+
+def test_scrub_redacts_partial_and_token_shaped_strings(tmp_path):
+    secret = "sk-ant-oat01-" + "abcdefghij" * 9
+    (tmp_path / "a.txt").write_text(f"prefix {secret[:40]}... and {secret[30:70]} end")
+    (tmp_path / "b.txt").write_text("other sk-ant-api03-ZZZZZZZZZZZZZZZZ here")
+    assert scrub_tree(tmp_path, secret) >= 3
+    a, b = (tmp_path / "a.txt").read_text(), (tmp_path / "b.txt").read_text()
+    for i in range(len(secret) - 15):
+        assert secret[i:i + 16] not in a
+    assert "sk-ant-api03-ZZZZ" not in b and "other" in b and "end" in a
+
+
+def test_data_files_and_large_files_are_held_back(tmp_path):
+    from launch.collect import hold_back
+    run = tmp_path / "run"
+    (run / "skill/workspace").mkdir(parents=True)
+    (run / "skill/workspace/trips_clean.parquet").write_bytes(b"x" * 10)
+    (run / "skill/workspace/fig.png").write_bytes(b"x" * 10)
+    (run / "skill/messages.jsonl").write_bytes(b"x" * 30)
+    held = hold_back(run, max_bytes=20)
+    assert [h["path"] for h in held] == ["skill/messages.jsonl", "skill/workspace/trips_clean.parquet"]
+    assert all(len(h["sha256"]) == 64 and h["bytes"] > 0 for h in held)
+    assert (run / ".gitignore").read_text().splitlines() == ["/skill/messages.jsonl",
+                                                             "/skill/workspace/trips_clean.parquet"]
+
+
+def test_check_prompts_have_the_pairs_shape():
+    import run_pair
+    prompts = {side: build_prompt(side, *run_pair.CHECK_PARTS) for side in ("control", "skill")}
+    assert "\n\n" in prompts["control"] and prompts["skill"] == "/iterative-data-science " + prompts["control"]

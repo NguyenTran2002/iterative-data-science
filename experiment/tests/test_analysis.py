@@ -177,3 +177,12 @@ def test_final_notebook_that_is_not_json(tmp_path):
     m = compute(side)
     assert m["notebook_present"] is True and m["notebook_valid"] is False
     assert m["mixed_output_cells"] == 0 and m["inline_images"] == 0
+
+
+def test_other_notebooks_are_listed(tmp_path):
+    side = tmp_path / "side"
+    shutil.copytree(SIDE, side)
+    (side / "snapshots/other/analysis.nbconvert.ipynb").mkdir(parents=True)
+    (side / "snapshots/other/analysis.nbconvert.ipynb/snap-0001.ipynb").write_text("{}")
+    (side / "workspace/scratch.ipynb").write_text("{}")
+    assert compute(side)["other_notebooks"] == ["analysis.nbconvert.ipynb", "scratch.ipynb"]

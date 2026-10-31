@@ -159,3 +159,19 @@ def test_termination_signal_still_writes_result(tmp_path):
 
     assert asyncio.run(cancel_soon())["status"] == "error_terminated"
     assert json.loads((tmp_path / "result.json").read_text())["status"] == "error_terminated"
+
+
+def test_workspace_watcher_follows_every_notebook(tmp_path):
+    from runner.watcher import WorkspaceWatcher
+    ws, snaps = tmp_path / "ws", tmp_path / "snaps"
+    (ws / "sub").mkdir(parents=True)
+    (ws / ".ipynb_checkpoints").mkdir()
+    nb = '{"cells": [], "metadata": {}, "nbformat": 4, "nbformat_minor": 5}'
+    for name in ("analysis.ipynb", "analysis.nbconvert.ipynb", "sub/Other.ipynb",
+                 ".ipynb_checkpoints/analysis-checkpoint.ipynb"):
+        (ws / name).write_text(nb)
+    w = WorkspaceWatcher(ws, snaps)
+    w.poll_once()
+    found = sorted(str(p.relative_to(snaps)) for p in snaps.rglob("snap-*.ipynb"))
+    assert found == ["other/analysis.nbconvert.ipynb/snap-0001.ipynb",
+                     "other/sub/Other.ipynb/snap-0001.ipynb", "snap-0001.ipynb"]

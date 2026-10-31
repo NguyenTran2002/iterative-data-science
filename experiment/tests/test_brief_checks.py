@@ -49,3 +49,11 @@ def test_reading_dataset_md_is_not_data_access(tmp_path):
     log.write_text(tool_call("Read", file_path="/home/analyst/work/dataset.md") + "\n"
                    + json.dumps({"_type": "ResultMessage", "result": "ok"}) + "\n")
     assert check_no_data_access(log) == []
+
+
+def test_flags_any_portal_or_dataset_mention(tmp_path):
+    for call in (tool_call("Bash", command="curl https://data.cityofchicago.org/api/v3/views/wrvz-psew/query.json"),
+                 tool_call("Bash", command="python fetch.py --dataset wrvz-psew")):
+        log = tmp_path / "m.jsonl"
+        log.write_text(call + "\n")
+        assert check_no_data_access(log)

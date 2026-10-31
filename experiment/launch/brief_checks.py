@@ -11,7 +11,9 @@ NUMBERED = re.compile(r"^\d+\.\s")
 HEADED_QUESTION = re.compile(r"^#+ .*\?\s*$")
 BACKTICKED = re.compile(r"`([A-Za-z_][A-Za-z0-9_]*)`")
 SNAKE_CASE = re.compile(r"\b[a-z][a-z0-9]*(?:_[a-z0-9]+)+\b")
-DATA_ENDPOINTS = ("data.cityofchicago.org/resource/", "/api/views/wrvz-psew/rows")
+# The writer may only read dataset.md, so any mention of the portal or the dataset ID in
+# a tool call is flagged: a false alarm costs a redraw, a miss breaks the clean room.
+DATA_MARKERS = ("cityofchicago.org", "wrvz-psew")
 
 
 def count_questions(text: str) -> int:
@@ -38,7 +40,7 @@ def check_no_data_access(messages_jsonl: Path) -> list[str]:
         for block in message.get("content") or []:
             if isinstance(block, dict) and "input" in block:
                 call = json.dumps(block["input"])
-                for endpoint in DATA_ENDPOINTS:
-                    if endpoint in call:
-                        reasons.append(f"{block.get('name')} call reached {endpoint}")
+                for marker in DATA_MARKERS:
+                    if marker in call.lower():
+                        reasons.append(f"{block.get('name')} call mentions {marker}")
     return reasons

@@ -25,3 +25,14 @@ Entries are written in order as the work happens: times come from `date -u`, cou
 | 2026-10-31T2200Z | 764 | 3–4 (passed) | 3 | $0.11 |
 
 All five drafts so far failed the under-400-words check. The writer's instructions do not mention a length, so the drafts run 680 to 910 words. The writer is stopped here and no brief is accepted. Whether to add the limits to the instructions is the author's decision, recorded in a new entry when made. All drafts are kept in `experiment/task/rejected/` with their run records in `experiment/task/runs/`.
+
+## 2026-10-31T22:01Z: System-prompt check in the real image: passed
+
+`run_pair.py --check` (`runs/check-2026-10-31T2201Z/`) sent each side a two-part prompt shaped like the pair's ("Reply with exactly: OK", a blank line, "Do nothing else."); the skill side's prompt had the `/iterative-data-science ` prefix.
+
+- **The two sides received the same system prompt:** 6,499 characters each, SHA-256 `279e494a…6b92eb6` (`system_prompts.json`).
+- **The skill side's first request contained the SKILL.md text; the control side's did not.**
+- **Loaded:** only Claude Code's three built-in plugins on both sides. The skill side listed `iterative-data-science` as an extra skill; the control side did not have it. Claude Code 2.1.316 on both sides.
+- **Starts:** 22:01:21.507Z and 22:01:21.676Z, 0.17 s apart. Both exited 0 after one turn, at an estimated $0.02 and $0.03.
+- **Redactions:** 0. No data files were held back.
+- **Account context:** the only email addresses in either side's raw requests are `@anthropic.com` addresses; no account email or git identity reached the containers.

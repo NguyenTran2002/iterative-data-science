@@ -8,6 +8,8 @@
 
 **Spec:** `docs/design/2026-10-31-experiment-design.md` (read it first; this plan argues from it).
 
+**Review:** before Task 10 (the first paid step), the whole branch is reviewed once, in a fresh session.
+
 ## Global Constraints
 
 - Models: sides `claude-sonnet-5-5`, task writer `claude-opus-5-5`; effort `"high"` for both.

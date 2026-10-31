@@ -1,0 +1,27 @@
+{
+  "run_id": "2026-10-31T2153Z",
+  "started": "2026-10-31T21:53:27.054Z",
+  "ended": "2026-10-31T21:54:06.315Z",
+  "outcome": "exit:0",
+  "image_id": "sha256:9ad764ab81564b5431279839e016d3ea991dc093b6d480ebae2ca776b9b7da36",
+  "run_args": [
+    "--model",
+    "claude-opus-5-5",
+    "--effort",
+    "high",
+    "--wall-clock-s",
+    "14400",
+    "--max-turns",
+    "200",
+    "--max-budget-usd",
+    "100",
+    "--disallow-web"
+  ],
+  "signin_method": "CLAUDE_CODE_OAUTH_TOKEN",
+  "redactions": 0,
+  "passed": false,
+  "reasons": [
+    "has 7 questions, not three or four",
+    "has 875 words, not under 400"
+  ]
+}

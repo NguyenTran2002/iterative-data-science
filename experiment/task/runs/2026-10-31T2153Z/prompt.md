@@ -1,0 +1,1 @@
+`dataset.md` describes one week of Chicago taxi trip records. Write `brief.md`: the brief a manager would hand to a data analyst for this data. Include three or four routine business questions that can be answered from the listed columns. Scope it so a competent analyst can finish in one sitting of about two to three hours. Use only the files in this folder.

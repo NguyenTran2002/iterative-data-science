@@ -1,0 +1,30 @@
+{
+  "id": "wrvz-psew",
+  "name": "Taxi Trips (2013-2023)",
+  "description": "<b>This dataset ends with 2023. Please see the Featured Content link below for the dataset that starts in 2024.</b>\r\n\r\nTaxi trips from 2013 to 2023 reported to the City of Chicago in its role as a regulatory agency.  To protect privacy but allow for aggregate analyses, the Taxi ID is consistent for any given taxi medallion number but does not show the number, Census Tracts are suppressed in some cases, and times are rounded to the nearest 15 minutes.\r\n\r\nDue to the data reporting process, not all trips are reported but the City believes that most are.",
+  "columns": [
+    {
+      "fieldName": "trip_id",
+      "name": "Trip ID",
+      "dataTypeName": "text",
+      "description": "A unique identifier for the trip."
+    },
+    {
+      "fieldName": "trip_miles",
+      "name": "Trip Miles",
+      "dataTypeName": "number",
+      "description": "Distance of the trip in miles."
+    },
+    {
+      "fieldName": "tips",
+      "name": "Tips",
+      "dataTypeName": "number",
+      "description": "The tip for the trip. Cash tips generally will not be recorded."
+    },
+    {
+      "fieldName": ":@computed_region_vrxf_vc4k",
+      "name": "Community Areas",
+      "dataTypeName": "number"
+    }
+  ]
+}

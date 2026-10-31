@@ -1,0 +1,13 @@
+{
+  "control": {
+    "sha256": "279e494a1040fc9102b60a27f32dc878e265c2eb9c6a09d1eea3d7ae16b92eb6",
+    "chars": 6499,
+    "skill_text_in_first_request": false
+  },
+  "skill": {
+    "sha256": "279e494a1040fc9102b60a27f32dc878e265c2eb9c6a09d1eea3d7ae16b92eb6",
+    "chars": 6499,
+    "skill_text_in_first_request": true
+  },
+  "match": true
+}

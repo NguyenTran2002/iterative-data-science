@@ -1,0 +1,76 @@
+{
+  "status": "success",
+  "num_turns": 24,
+  "duration_ms": 303750,
+  "total_cost_usd": 0.763745,
+  "usage": {
+    "input_tokens": 32,
+    "cache_creation_input_tokens": 72600,
+    "cache_read_input_tokens": 876439,
+    "output_tokens": 38540,
+    "output_tokens_details": {
+      "thinking_tokens": 14058
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 72600,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "global",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 1189,
+        "cache_read_input_tokens": 87995,
+        "cache_creation_input_tokens": 2672,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 2672
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "signin_method": "CLAUDE_CODE_OAUTH_TOKEN",
+  "subtype": "success",
+  "model_usage": {
+    "claude-haiku-5-5": {
+      "inputTokens": 2241,
+      "outputTokens": 26,
+      "cacheReadInputTokens": 0,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.0002371,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 128000,
+      "thinkingTokens": 0,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationEphemeral1hInputTokens": 0,
+      "canonicalModel": "claude-haiku-5-5",
+      "provider": "firstParty",
+      "costBasis": "list"
+    },
+    "claude-sonnet-5-5": {
+      "inputTokens": 32,
+      "outputTokens": 38540,
+      "cacheReadInputTokens": 876439,
+      "cacheCreationInputTokens": 72600,
+      "webSearchRequests": 0,
+      "costUSD": 0.7635079,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 128000,
+      "thinkingTokens": 14058,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationEphemeral1hInputTokens": 72600,
+      "canonicalModel": "claude-sonnet-5-5",
+      "provider": "firstParty",
+      "costBasis": "list"
+    }
+  }
+}

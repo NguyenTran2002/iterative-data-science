@@ -1,0 +1,47 @@
+{
+  "run_id": "2026-10-31T2244Z",
+  "kind": "pair",
+  "model": "claude-sonnet-5-5",
+  "effort": "high",
+  "run_args": [
+    "--model",
+    "claude-sonnet-5-5",
+    "--effort",
+    "high",
+    "--wall-clock-s",
+    "14400",
+    "--max-turns",
+    "1000",
+    "--max-budget-usd",
+    "100.0"
+  ],
+  "wall_clock_s": 14400,
+  "started": {
+    "control": "2026-10-31T22:44:53.347Z",
+    "skill": "2026-10-31T22:44:53.578Z"
+  },
+  "ended": "2026-10-31T22:52:10.652Z",
+  "outcome": {
+    "control": "exit:0",
+    "skill": "exit:0"
+  },
+  "image_id": "sha256:aa7be5661ad8086c146eeeac457768cdc0b2809159c372d7a63aee51fd7cf7d6",
+  "chip": "arm64",
+  "claude_code_version": {
+    "control": "2.1.316",
+    "skill": "2.1.316"
+  },
+  "data": {
+    "monday": "2023-09-11",
+    "sunday": "2023-09-17",
+    "rows": 135768,
+    "sha256": "ea55bda9551a8908f3d05ff67afbd48013ec57eb02eb243f7cf95538f47ecf8a"
+  },
+  "skill_sha256": "b712fec1d97aeea8cea50ea5c5cbbb972730b3d82728ac6e646f8710e8f71c17",
+  "signin_method": "CLAUDE_CODE_OAUTH_TOKEN",
+  "redactions": {
+    "control": 0,
+    "skill": 0
+  },
+  "held_back_from_git": []
+}

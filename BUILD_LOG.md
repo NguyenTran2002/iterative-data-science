@@ -75,3 +75,24 @@ Note for the write-up: the control side saved its figures under `/tmp/nbbuild/`,
 ## 2026-10-31T22:43Z: Decision: four more pairs on the same brief
 
 After reading the first pair's counts, the author decided to run four more pairs with the same brief, data, image, model, settings and caps, to see whether the difference in behavior holds across runs. They run one after another, so the pairs do not compete for the plan's rate limits; within each pair both sides start together. All four are published whatever they show, and none is rerun because of its result.
+
+## 2026-10-31T22:44Z to 23:18Z: Pairs 2 to 5
+
+Runs `runs/2026-10-31T2244Z/`, `…T2253Z/`, `…T2302Z/`, `…T2310Z/`, one after another. In every pair both sides exited 0 with status `success`; the two sides started 0.17 to 0.23 s apart; they received the same system prompt (the same hash as pair 1); the SKILL.md text was in the skill side's first request only; 0 redactions; nothing held back from git. The metrics were computed by the committed `metrics.py`, with fresh re-execution.
+
+| Pair | Side | Turns | Duration | Est. cost | Executions | Rework | Mixed cells | Figures saved / opened | Tool errors | Fresh re-run |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 1 | control | 26 | 322 s | $0.77 | 5 | 0 | 3 | 0 / 5 | 0 | passes |
+| 1 | skill | 34 | 372 s | $0.87 | 17 | 5 | 0 | 4 / 4 | 1 | passes |
+| 2 | control | 32 | 312 s | $0.77 | 1 | 0 | 3 | 0 / 6 | 2 | passes |
+| 2 | skill | 36 | 433 s | $0.94 | 15 | 3 | 0 | 5 / 5 | 0 | passes |
+| 3 | control | 24 | 304 s | $0.76 | 3 | 0 | 1 | 0 / 5 | 1 | passes |
+| 3 | skill | 43 | 483 s | $1.20 | 23 | 0 | 0 | 5 / 5 | 0 | passes |
+| 4 | control | 21 | 218 s | $0.53 | 4 | 0 | 1 | 0 / 5 | 1 | passes |
+| 4 | skill | 38 | 428 s | $1.00 | 22 | 4 | 0 | 5 / 5 | 1 | passes |
+| 5 | control | 23 | 237 s | $0.59 | 4 | 0 | 2 | 0 / 5 | 1 | passes |
+| 5 | skill | 33 | 449 s | $0.79 | 17 | 0 | 0 | 5 / 5 | 1 | passes |
+
+No side made a web search, a web fetch or a package install, and no final notebook had a cell error. Every control side saved its figures outside the workspace (under `/tmp`) and opened them there.
+
+**A limit of the batch-size count, as the spec anticipated for rework.** In pairs 4 and 5 the skill side rebuilt the notebook from a script on each pass, so every cell got a new ID each time. The ID-matched batch sizes in `metrics.json` therefore count whole notebooks as new, and those two sides' medians (8.5 and 9) are inflated. The committed definitions are not changed after the runs. A source-matched recount, added after seeing the runs and labelled as such, appears with the write-up.

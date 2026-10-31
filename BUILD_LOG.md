@@ -71,3 +71,7 @@ Counts from `metrics.json`, computed by the committed `metrics.py`:
 | Web searches, fetches, package installs | 0 | 0 |
 
 Note for the write-up: the control side saved its figures under `/tmp/nbbuild/`, outside the workspace, and opened five of them there. The "image files saved in the workspace" count is 0 by the spec's definition, not because it made no figures. Both sides read Claude Code's built-in `dataviz` skill before charting.
+
+## 2026-10-31T22:43Z: Decision: four more pairs on the same brief
+
+After reading the first pair's counts, the author decided to run four more pairs with the same brief, data, image, model, settings and caps, to see whether the difference in behavior holds across runs. They run one after another, so the pairs do not compete for the plan's rate limits; within each pair both sides start together. All four are published whatever they show, and none is rerun because of its result.

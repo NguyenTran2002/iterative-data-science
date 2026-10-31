@@ -62,7 +62,7 @@ It records the row count, byte size and SHA-256 in `week.json`. The CSV itself i
 
 **Image** (`experiment/Dockerfile`), one image for both sides and for the task writer:
 
-- Python base image with `uv`. Dependencies pinned in `experiment/uv.lock`: `claude-agent-sdk` at an exact version, and pandas, numpy, matplotlib, seaborn, scipy, statsmodels, scikit-learn, jupyter, nbconvert, ipykernel.
+- Python base image with `uv`, and two separate environments so an agent's `pip install` can never touch the runner: `/opt/runner/.venv` holds `claude-agent-sdk==0.2.176` (the version the probe verified; it bundles Claude Code 2.1.316 and ships Linux wheels for both chip types); `/opt/venv`, owned by `analyst` and first on the agent's `PATH`, holds pandas, numpy, matplotlib, seaborn, scipy, statsmodels, scikit-learn, jupyter, nbconvert and ipykernel at exact versions compiled into `experiment/requirements/analysis.txt`.
 - Claude Code is the build bundled inside the pinned `claude-agent-sdk` wheel, so one pin fixes both. `DISABLE_AUTOUPDATER=1` is set.
 - The agent runs as the non-root user `analyst` in `/home/analyst/work`. The runner lives in `/opt/runner` and never names the skill. Outputs go to `/out`, mounted from the host.
 - Built for the host's chip type, which `pair.json` and the README record.
@@ -103,7 +103,8 @@ The SKILL.md copied in is the plugin's copy in this repository (§8). Its SHA-25
 - `init.json`: Claude Code version, model, skills, plugins and tools that loaded
 - `result.json`: status, whether a cap was hit, turns, duration, estimated cost, token usage, sign-in method
 - `workspace/`: the final workspace (notebook, figures, any other files), without `trips.csv`
-- `packages.txt`: `pip freeze` at the end of the run
+- `packages.txt`: `pip freeze` of `/opt/venv` at the end of the run
+- `snapshots/`: every distinct version of `analysis.ipynb`, numbered, with the time it was seen (§7)
 - `system_prompt.txt` and its SHA-256, extracted from the first main-thread request
 
 `/out/private/` holds the raw API request bodies. They contain account and device IDs, so they are copied to `runs/<run-id>/<side>/private/`, which `.gitignore` excludes, and are used only to extract `system_prompt.txt` and to check the two sides received the same one.
@@ -174,11 +175,13 @@ Order, each step committed before the next:
 
 **Behavior counts**
 
-- **Executions:** tool calls that run notebook code (for example `jupyter nbconvert --execute`, `jupyter execute`, papermill or nbclient). For each, the number of code cells added or changed since the previous execution (batch size).
+Agents edit notebooks in many ways (the probe's agent rewrote the JSON from a Bash heredoc), so the log alone cannot show the notebook's history. The runner therefore snapshots `analysis.ipynb` every time its content changes, polling once a second from outside the agent's process, into `/out/snapshots/`. Nothing about this reaches the agent's context. The counts below that need history use those snapshots.
+
+- **Executions:** snapshots in which any code cell's outputs or execution count changed from the previous snapshot. For each, the number of code cells added or whose source changed since the previous execution (batch size).
 - **Mixed output cells:** code cells in the final notebook whose outputs include both text and an image.
-- **Figures:** image files created in the workspace; how many the agent opened with the Read tool; and images that exist only inline in the notebook.
+- **Figures:** image files created in the workspace; how many distinct ones the agent opened with the Read tool; and the number of inline image outputs in the final notebook.
 - **Errors:** tool calls that returned an error; code cells in the final notebook with an error output.
-- **Rework:** edits to cells that had already been executed, from the edit and write calls in the log.
+- **Rework:** code cells (matched by cell ID) whose source changed after they had outputs in an earlier snapshot. A notebook rewritten with new cell IDs undercounts this; the README says so if it happens.
 - **Fresh re-execution:** whether the final `analysis.ipynb` runs from top to bottom without error in a fresh container from the same image (run by the analysis step, not by the agent).
 - **Cost and effort:** turns, wall-clock duration, estimated cost, input and output tokens.
 - **Outside activity:** every web search, web fetch and package install, listed per side. If the control side ever reached this repository or the skill text, that is reported, and the run is kept.
@@ -200,9 +203,12 @@ plugins/iterative-data-science/
   .claude-plugin/plugin.json
   skills/iterative-data-science/SKILL.md     the skill, single source of truth
 experiment/
-  Dockerfile  pyproject.toml  uv.lock
-  runner/run.py
+  Dockerfile  pyproject.toml  uv.lock          host tooling and tests
+  requirements/runner.txt  requirements/analysis.in  requirements/analysis.txt   image pins
+  runner/                         copied into the image as /opt/runner
+  launch/                         host-side helpers for the scripts below
   run_pair.py  run_task_writer.py
+  tests/
   data/draw_week.py  data/fetch_week.py  data/dataset_md.py  data/week.json
   prompts/task_writer.md  prompts/wrapper.md
   task/brief.md  task/rejected/

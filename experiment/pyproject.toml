@@ -1,0 +1,16 @@
+[project]
+name = "ids-experiment"
+version = "0.1.0"
+description = "Host tooling and tests for the with-and-without skill experiment"
+requires-python = ">=3.13"
+dependencies = [
+    "claude-agent-sdk==0.2.176",
+    "nbformat",
+]
+
+[dependency-groups]
+dev = ["pytest"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

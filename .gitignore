@@ -1,0 +1,8 @@
+# raw API request bodies hold account and device IDs
+runs/*/*/private/
+# the data is fetched by script and checked by checksum, never committed
+experiment/data/*.csv
+.venv/
+__pycache__/
+.DS_Store
+.env

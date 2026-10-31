@@ -29,6 +29,7 @@ The first release is **one pair**: one run with the skill and one without, launc
 | Scoring | Behavior counts from logs and notebooks, consequences quoted from the logs, disagreements traced to their cause in code. No rubric, no judge, no accuracy grading |
 | Pairs | One pair first. More only by explicit decision, all published |
 | Caps | Runaway guards only (§6). Hitting one is a result, never a reason to rerun |
+| License | Apache 2.0 for the skill and the code. The taxi data stays under the City of Chicago portal's terms and is never stored in the repo |
 
 ## 3. Data
 
@@ -228,6 +229,7 @@ docs/
 3. What the experiment does and does not show: behavior, not accuracy; one pair; autonomous runs using Claude Code's non-interactive setup (identical system prompt to `claude -p`), not the interactive terminal; full internet; signed in with a plan token; the skill's author designed it.
 4. How it was kept neutral: the drawn week, the clean-room brief, the counts fixed in advance, every run published.
 5. How to reproduce: Docker, a plan token or API key, `fetch_week.py`, `run_pair.py`, the expected cost per run.
+6. License: Apache 2.0 for the skill and code; the data is the City of Chicago's, under its portal's terms.
 
 The SKILL.md says Claude cannot see inline notebook renders. The README presents that as the observation the skill was written from, not as current Claude Code behavior, and the experiment's figure counts are the evidence either way.
 

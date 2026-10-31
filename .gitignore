@@ -6,3 +6,5 @@ experiment/data/*.csv
 __pycache__/
 .DS_Store
 .env
+# the task writer's raw API request bodies, same reason
+experiment/task/runs/*/private/

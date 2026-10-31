@@ -38,11 +38,14 @@ def render(metadata: dict, week: dict) -> str:
     ])
 
 
+def fetch_metadata() -> dict:
+    with urllib.request.urlopen(METADATA_URL, timeout=60) as r:
+        return json.load(r)
+
+
 def main() -> None:
     out = Path(sys.argv[1])
-    with urllib.request.urlopen(METADATA_URL, timeout=60) as r:
-        metadata = json.load(r)
-    out.write_text(render(metadata, json.loads(WEEK_JSON.read_text())))
+    out.write_text(render(fetch_metadata(), json.loads(WEEK_JSON.read_text())))
 
 
 if __name__ == "__main__":

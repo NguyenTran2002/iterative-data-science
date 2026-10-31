@@ -40,3 +40,9 @@ All five drafts so far failed the under-400-words check. The writer's instructio
 ## 2026-10-31T22:15Z: Brief setup rewritten before redrafting
 
 The author's decision after the five rejected drafts: the experiment's own setup, not the clean-room writer, had left out the practical facts a real brief carries. The clean-room writer gets no data, but should get the infrastructure the experiment runs on, and the analyst should get the logistics a real brief carries. Spec section 12 records the changes: `environment.md` for the writer, the limits stated in its instructions with the word cap moved to 500, a question counter that skips numbered deliverables, and `dataset.md` in both sides' folders. Before this, the author asked to use draft 1 as is; that was set aside in favor of the rewrite.
+
+## 2026-10-31T22:29Z: Task writer, draft 6: accepted
+
+- The first draft under the rewritten setup (spec section 12) passed every check: four questions, 489 words, only listed columns named, no access to the portal or the dataset. Run `experiment/task/runs/2026-10-31T2229Z/`: 7 turns, an estimated $0.19, 0 redactions.
+- Committed as `experiment/task/brief.md`, with the `dataset.md` the writer saw as `experiment/task/dataset.md`; both sides of the pair get that file.
+- Caps reviewed against the brief before the pair: 1,000 turns, an estimated $100 and 4 hours per side, unchanged. The brief asks for descriptive work on 135,768 rows, so each cap is expected to sit far above what a side uses.

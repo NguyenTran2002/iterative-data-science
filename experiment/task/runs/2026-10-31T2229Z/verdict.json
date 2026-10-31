@@ -1,0 +1,26 @@
+{
+  "run_id": "2026-10-31T2229Z",
+  "started": "2026-10-31T22:29:14.032Z",
+  "ended": "2026-10-31T22:29:56.519Z",
+  "outcome": "exit:0",
+  "image_id": "sha256:ce32f84e4559905731eff80c29f75b7f055a1d9999fe7e443ca341b39137d5ca",
+  "run_args": [
+    "--model",
+    "claude-opus-5-5",
+    "--effort",
+    "high",
+    "--wall-clock-s",
+    "14400",
+    "--max-turns",
+    "200",
+    "--max-budget-usd",
+    "100",
+    "--disallow-web"
+  ],
+  "signin_method": "CLAUDE_CODE_OAUTH_TOKEN",
+  "redactions": 0,
+  "passed": true,
+  "reasons": [],
+  "instructions_sha256": "fb5e1b42d73363d68f7bfb1227ea41499114ef1f393d9b36c7e77eb9b0366210",
+  "environment_md_sha256": "525542953b0f02e7342221648f904f65b890a523f13fb244d029a51d50885bd0"
+}

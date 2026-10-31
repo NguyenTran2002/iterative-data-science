@@ -1,0 +1,76 @@
+{
+  "status": "success",
+  "num_turns": 7,
+  "duration_ms": 38855,
+  "total_cost_usd": 0.1930792,
+  "usage": {
+    "input_tokens": 14,
+    "cache_creation_input_tokens": 11219,
+    "cache_read_input_tokens": 135244,
+    "output_tokens": 3804,
+    "output_tokens_details": {
+      "thinking_tokens": 569
+    },
+    "server_tool_use": {
+      "web_search_requests": 0,
+      "web_fetch_requests": 0
+    },
+    "service_tier": "standard",
+    "cache_creation": {
+      "ephemeral_1h_input_tokens": 11219,
+      "ephemeral_5m_input_tokens": 0
+    },
+    "inference_geo": "global",
+    "iterations": [
+      {
+        "input_tokens": 2,
+        "output_tokens": 610,
+        "cache_read_input_tokens": 22878,
+        "cache_creation_input_tokens": 1471,
+        "cache_creation": {
+          "ephemeral_5m_input_tokens": 0,
+          "ephemeral_1h_input_tokens": 1471
+        },
+        "type": "message"
+      }
+    ],
+    "speed": "standard",
+    "fallback_credit": null
+  },
+  "signin_method": "CLAUDE_CODE_OAUTH_TOKEN",
+  "subtype": "success",
+  "model_usage": {
+    "claude-haiku-5-5": {
+      "inputTokens": 1324,
+      "outputTokens": 20,
+      "cacheReadInputTokens": 0,
+      "cacheCreationInputTokens": 0,
+      "webSearchRequests": 0,
+      "costUSD": 0.00014240000000000002,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 128000,
+      "thinkingTokens": 0,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationEphemeral1hInputTokens": 0,
+      "canonicalModel": "claude-haiku-5-5",
+      "provider": "firstParty",
+      "costBasis": "list"
+    },
+    "claude-opus-5-5": {
+      "inputTokens": 14,
+      "outputTokens": 3804,
+      "cacheReadInputTokens": 135244,
+      "cacheCreationInputTokens": 11219,
+      "webSearchRequests": 0,
+      "costUSD": 0.19293680000000002,
+      "contextWindow": 1000000,
+      "maxOutputTokens": 128000,
+      "thinkingTokens": 569,
+      "cacheCreationEphemeral5mInputTokens": 0,
+      "cacheCreationEphemeral1hInputTokens": 11219,
+      "canonicalModel": "claude-opus-5-5",
+      "provider": "firstParty",
+      "costBasis": "list"
+    }
+  }
+}

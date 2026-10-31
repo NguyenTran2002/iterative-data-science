@@ -1,0 +1,1 @@
+The data is in `trips.csv` in this folder. Do the analysis in a Jupyter notebook named `analysis.ipynb` in this folder.

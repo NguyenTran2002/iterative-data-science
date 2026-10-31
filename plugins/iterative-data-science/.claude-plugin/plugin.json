@@ -1,0 +1,9 @@
+{
+  "name": "iterative-data-science",
+  "version": "1.0.0",
+  "description": "Makes Claude Code work in small, verified batches in Jupyter notebooks",
+  "author": {
+    "name": "Nguyen Tran"
+  },
+  "license": "Apache-2.0"
+}

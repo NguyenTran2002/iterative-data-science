@@ -1,0 +1,14 @@
+{
+  "name": "iterative-data-science",
+  "description": "The iterative-data-science skill for Claude Code",
+  "owner": {
+    "name": "Nguyen Tran"
+  },
+  "plugins": [
+    {
+      "name": "iterative-data-science",
+      "source": "./plugins/iterative-data-science",
+      "description": "Makes Claude Code work in small, verified batches in Jupyter notebooks"
+    }
+  ]
+}

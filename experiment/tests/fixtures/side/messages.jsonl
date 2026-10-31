@@ -1,0 +1,9 @@
+{"_type": "SystemMessage", "subtype": "init", "data": {}}
+{"_type": "AssistantMessage", "content": [{"id": "t1", "name": "Bash", "input": {"command": "pip install pyarrow"}}]}
+{"_type": "UserMessage", "content": [{"tool_use_id": "t1", "content": "ok", "is_error": false}]}
+{"_type": "AssistantMessage", "content": [{"id": "t2", "name": "Bash", "input": {"command": "cat nope.txt"}}]}
+{"_type": "UserMessage", "content": [{"tool_use_id": "t2", "content": "No such file", "is_error": true}]}
+{"_type": "AssistantMessage", "content": [{"id": "t3", "name": "Read", "input": {"file_path": "/home/analyst/work/fig1.png"}}]}
+{"_type": "UserMessage", "content": [{"tool_use_id": "t3", "content": [{"type": "image"}], "is_error": null}]}
+{"_type": "AssistantMessage", "content": [{"id": "t4", "name": "Read", "input": {"file_path": "/home/analyst/work/fig1.png"}}]}
+{"_type": "ResultMessage", "subtype": "success"}

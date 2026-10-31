@@ -22,11 +22,11 @@ from launch.collect import collect_side
 from launch.docker import start, wait_all
 from launch.signin import signin_env
 from launch.workspace import SKILL_MD, prepare_workspace
-from run_pair import IMAGE, WALL_CLOCK_S, build_image, utc_now
+from run_pair import BACKSTOP_S, IMAGE, WALL_CLOCK_S, build_image, utc_now
 
 HERE = Path(__file__).resolve().parent
 TASK = HERE / "task"
-RUN_ARGS = ["--model", "claude-opus-5-5", "--effort", "high",
+RUN_ARGS = ["--model", "claude-opus-5-5", "--effort", "high", "--wall-clock-s", str(WALL_CLOCK_S),
             "--max-turns", "200", "--max-budget-usd", "100", "--disallow-web"]
 
 
@@ -45,7 +45,7 @@ def main() -> None:
     started = utc_now()
     cid = start(IMAGE, workspace, out, (HERE / "prompts/task_writer.md").read_text(), RUN_ARGS, signin)
     print(f"Started task writer {run_id}: {cid[:12]}", flush=True)
-    outcome = wait_all([cid], WALL_CLOCK_S)[cid]
+    outcome = wait_all([cid], BACKSTOP_S)[cid]
 
     dest = TASK / "runs" / run_id
     redacted = collect_side(out, workspace, dest, signin[1])

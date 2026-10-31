@@ -18,6 +18,7 @@ class RunConfig:
     disallow_web: bool
     workspace: Path = Path("/home/analyst/work")
     out_dir: Path = Path("/out")
+    wall_clock_s: int = 14400
 
 
 def signin_method() -> str | None:

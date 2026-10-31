@@ -15,8 +15,6 @@ import sys
 import tempfile
 from pathlib import Path
 
-import nbformat
-
 from analysis.system_prompt import extract_system_prompt, first_request_has
 from data.fetch_week import CSV
 
@@ -27,28 +25,48 @@ SKILL_MARKER = "# Iterative Data Science Workflow"
 
 
 # --- notebook helpers -------------------------------------------------------
+# Notebooks are read as raw JSON, not through nbformat: nbformat invents a fresh
+# random ID for every cell that lacks one, which would make each snapshot look new.
 
-def _code_cells(nb) -> dict[str, dict]:
-    """Code cells keyed by cell ID, or by position when IDs are missing."""
-    return {c.get("id") or f"pos{i}": c for i, c in enumerate(nb.cells) if c.cell_type == "code"}
+def _load(path: Path) -> dict:
+    nb = json.loads(path.read_text())
+    if not isinstance(nb, dict) or not isinstance(nb.get("cells"), list):
+        raise ValueError(f"{path} is not a notebook")
+    return nb
 
 
-def _run_state(cell) -> tuple:
-    return cell.get("execution_count"), json.dumps(cell.get("outputs", []), sort_keys=True)
+def _source(cell: dict) -> str:
+    src = cell.get("source", "")
+    return "".join(src) if isinstance(src, list) else str(src)
+
+
+def _outputs(cell: dict) -> list:
+    outputs = cell.get("outputs")
+    return outputs if isinstance(outputs, list) else []
+
+
+def _code_cells(nb: dict) -> dict[str, dict]:
+    """Code cells keyed by the file's own cell ID, or by position when it has none."""
+    return {c.get("id") or f"pos{i}": c for i, c in enumerate(nb["cells"])
+            if isinstance(c, dict) and c.get("cell_type") == "code"}
+
+
+def _executed(cell: dict, before: dict | None) -> bool:
+    """New outputs or a new execution count. Clearing them (as NotebookEdit does) is not running."""
+    outputs, count = _outputs(cell), cell.get("execution_count")
+    old_outputs = _outputs(before) if before else []
+    old_count = before.get("execution_count") if before else None
+    return bool(outputs) and outputs != old_outputs or count is not None and count != old_count
 
 
 def _is_image(output) -> bool:
-    return any(k.startswith("image/") for k in output.get("data", {}))
+    data = output.get("data") if isinstance(output, dict) else None
+    return isinstance(data, dict) and any(k.startswith("image/") for k in data)
 
 
 def _is_text(output) -> bool:
-    if output.get("output_type") == "stream":
-        return True
-    return output.get("output_type") in ("execute_result", "display_data") and not _is_image(output)
-
-
-def _read(path: Path):
-    return nbformat.read(path, as_version=4)
+    kind = output.get("output_type") if isinstance(output, dict) else None
+    return kind == "stream" or kind in ("execute_result", "display_data") and not _is_image(output)
 
 
 def notebook_history(snapshots: list[Path]) -> dict:
@@ -59,31 +77,37 @@ def notebook_history(snapshots: list[Path]) -> dict:
     had_outputs: set[str] = set()
     for path in snapshots:
         try:
-            cells = _code_cells(_read(path))
-        except Exception:  # valid JSON that is not a notebook: nothing to compare
+            cells = _code_cells(_load(path))
+        except ValueError:  # JSON that is not a notebook: nothing to compare
             continue
-        changed_run = any(cid not in prev and (c.get("outputs") or c.get("execution_count") is not None)
-                          or cid in prev and _run_state(c) != _run_state(prev[cid])
-                          for cid, c in cells.items())
         for cid, c in cells.items():
-            if cid in had_outputs and cid in prev and c.source != prev[cid].source:
+            if cid in had_outputs and cid in prev and _source(c) != _source(prev[cid]):
                 reworked.add(cid)
-        if changed_run:
+        if any(_executed(c, prev.get(cid)) for cid, c in cells.items()):
             executions += 1
-            batch_sizes.append(sum(1 for cid, c in cells.items() if at_last_execution.get(cid) != c.source))
-            at_last_execution = {cid: c.source for cid, c in cells.items()}
-        had_outputs |= {cid for cid, c in cells.items() if c.get("outputs")}
+            batch_sizes.append(sum(1 for cid, c in cells.items() if at_last_execution.get(cid) != _source(c)))
+            at_last_execution = {cid: _source(c) for cid, c in cells.items()}
+        had_outputs |= {cid for cid, c in cells.items() if _outputs(c)}
         prev = cells
     return {"executions": executions, "batch_sizes": batch_sizes, "rework_cells": len(reworked)}
 
 
+EMPTY_FINAL = {"mixed_output_cells": 0, "inline_images": 0, "cell_errors": 0}
+
+
 def final_notebook(path: Path) -> dict:
-    cells = _code_cells(_read(path)).values()
-    outputs = [o for c in cells for o in c.get("outputs", [])]
+    try:
+        cells = list(_code_cells(_load(path)).values())
+    except ValueError:
+        return {"notebook_valid": False, **EMPTY_FINAL}
+    outputs = [o for c in cells for o in _outputs(c)]
     return {
-        "mixed_output_cells": sum(1 for c in cells if any(map(_is_text, c.outputs)) and any(map(_is_image, c.outputs))),
+        "notebook_valid": True,
+        "mixed_output_cells": sum(1 for c in cells if any(map(_is_text, _outputs(c)))
+                                  and any(map(_is_image, _outputs(c)))),
         "inline_images": sum(1 for o in outputs if _is_image(o)),
-        "cell_errors": sum(1 for c in cells if any(o.get("output_type") == "error" for o in c.outputs)),
+        "cell_errors": sum(1 for c in cells
+                           if any(isinstance(o, dict) and o.get("output_type") == "error" for o in _outputs(c))),
     }
 
 
@@ -134,8 +158,7 @@ def compute(side_dir: Path) -> dict:
                and ".claude" not in p.relative_to(workspace).parts] if workspace.exists() else []
     m = {"notebook_present": notebook.exists(), "status": result.get("status")}
     m |= notebook_history(snapshots)
-    m |= final_notebook(notebook) if notebook.exists() else {
-        "mixed_output_cells": 0, "inline_images": 0, "cell_errors": 0}
+    m |= final_notebook(notebook) if notebook.exists() else {"notebook_valid": False, **EMPTY_FINAL}
     m["figures_created"] = len(figures)
     m |= log_counts(_messages(side_dir))
     m |= {

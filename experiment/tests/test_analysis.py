@@ -113,3 +113,67 @@ def test_a_snapshot_that_is_json_but_not_a_notebook_is_skipped(tmp_path):
     (side / "snapshots/snap-0004.ipynb").write_text('{"cells": "oops"}')
     m = compute(side)
     assert m["executions"] == 2 and m["batch_sizes"] == [2, 1]
+
+
+def raw_nb(cells, minor=5):
+    return json.dumps({"cells": cells, "metadata": {}, "nbformat": 4, "nbformat_minor": minor})
+
+
+def code(src, count=None, outputs=(), cid=None):
+    c = {"cell_type": "code", "source": src, "metadata": {}, "execution_count": count, "outputs": list(outputs)}
+    if cid:
+        c["id"] = cid
+    return c
+
+
+OUT = {"output_type": "stream", "name": "stdout", "text": "1\n"}
+OUT2 = {"output_type": "stream", "name": "stdout", "text": "2\n"}
+
+
+def side_with_snapshots(tmp_path, notebooks):
+    side = tmp_path / "side"
+    (side / "snapshots").mkdir(parents=True)
+    for i, text in enumerate(notebooks, 1):
+        (side / f"snapshots/snap-{i:04d}.ipynb").write_text(text)
+    return side
+
+
+def test_clearing_outputs_is_not_an_execution(tmp_path):
+    # NotebookEdit replaces a cell's source and clears its outputs and execution count
+    side = side_with_snapshots(tmp_path, [
+        raw_nb([code("x = 1", 1, cid="a"), code("print(x)", 2, [OUT], cid="b")]),
+        raw_nb([code("x = 1", 1, cid="a"), code("print(x + 1)", None, cid="b")]),
+        raw_nb([code("x = 1", 1, cid="a"), code("print(x + 1)", 3, [OUT2], cid="b")]),
+    ])
+    m = compute(side)
+    assert m["executions"] == 2 and m["batch_sizes"] == [2, 1] and m["rework_cells"] == 1
+
+
+def test_cells_without_ids_in_a_v4_5_notebook_match_by_position(tmp_path):
+    # nbformat would invent fresh random IDs on every read; the raw file has none
+    side = side_with_snapshots(tmp_path, [
+        raw_nb([code("x = 1"), code("print(x)")]),
+        raw_nb([code("x = 1", 1), code("print(x)", 2, [OUT])]),
+        raw_nb([code("x = 1", 1), code("print(x + 1)", 3, [OUT2])]),
+    ])
+    m = compute(side)
+    assert m["executions"] == 2 and m["batch_sizes"] == [2, 1] and m["rework_cells"] == 1
+
+
+def test_final_notebook_with_cells_missing_outputs(tmp_path):
+    side = tmp_path / "side"
+    (side / "workspace").mkdir(parents=True)
+    cell = code("x = 1")
+    del cell["outputs"]
+    (side / "workspace/analysis.ipynb").write_text(raw_nb([cell]))
+    m = compute(side)
+    assert m["notebook_valid"] is True and m["mixed_output_cells"] == 0 and m["cell_errors"] == 0
+
+
+def test_final_notebook_that_is_not_json(tmp_path):
+    side = tmp_path / "side"
+    (side / "workspace").mkdir(parents=True)
+    (side / "workspace/analysis.ipynb").write_text("{not json")
+    m = compute(side)
+    assert m["notebook_present"] is True and m["notebook_valid"] is False
+    assert m["mixed_output_cells"] == 0 and m["inline_images"] == 0

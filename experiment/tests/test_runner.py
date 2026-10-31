@@ -122,3 +122,40 @@ def test_run_snapshots_the_notebook_written_during_the_run(tmp_path):
 
     asyncio.run(run(cfg, query_fn=writes_notebook))
     assert (tmp_path / "snapshots/snap-0001.ipynb").exists()
+
+
+def test_wall_clock_cap_is_enforced_by_the_runner(tmp_path):
+    cfg = cfg_with_out(tmp_path)
+    cfg.wall_clock_s = 1
+
+    async def never_ends(prompt, options):
+        yield INIT
+        await asyncio.sleep(3600)
+        yield REPLY
+
+    result = asyncio.run(run(cfg, query_fn=never_ends))
+    assert result["status"] == "error_wall_clock"
+    assert json.loads((tmp_path / "result.json").read_text())["status"] == "error_wall_clock"
+    assert len((tmp_path / "messages.jsonl").read_text().splitlines()) == 1
+
+
+def test_wall_clock_defaults_to_four_hours():
+    assert RunConfig("m", "high", "p", 1, 1.0, False).wall_clock_s == 14400
+
+
+def test_termination_signal_still_writes_result(tmp_path):
+    cfg = cfg_with_out(tmp_path)
+
+    async def never_ends(prompt, options):
+        yield INIT
+        await asyncio.sleep(3600)
+        yield REPLY
+
+    async def cancel_soon():
+        task = asyncio.create_task(run(cfg, query_fn=never_ends))
+        await asyncio.sleep(0.3)
+        task.cancel()  # what the SIGTERM handler does
+        return await task
+
+    assert asyncio.run(cancel_soon())["status"] == "error_terminated"
+    assert json.loads((tmp_path / "result.json").read_text())["status"] == "error_terminated"

@@ -9,7 +9,8 @@ def docker_run_args(image: str, workspace: Path, out_dir: Path, run_args: list[s
                     signin: tuple[str, str]) -> list[str]:
     # `-e NAME` without a value: docker reads it from the launcher's environment,
     # so the secret never appears on a command line
-    return ["docker", "run", "-d",
+    # --init: a real PID 1 forwards `docker stop`'s SIGTERM to the runner, which records it
+    return ["docker", "run", "-d", "--init",
             "-v", f"{workspace}:/home/analyst/work",
             "-v", f"{out_dir}:/out",
             "-e", signin[0],
@@ -31,7 +32,8 @@ def _state(cid: str) -> tuple[bool, int]:
     return out[0] == "true", int(out[1])
 
 
-def wait_all(ids: list[str], timeout_s: int, poll_s: float = 1.0) -> dict[str, str]:
+def wait_all(ids: list[str], timeout_s: int, poll_s: float = 1.0,
+             stop_grace_s: int = 120) -> dict[str, str]:
     deadline = time.monotonic() + timeout_s
     outcome: dict[str, str] = {}
     while len(outcome) < len(ids):
@@ -43,7 +45,7 @@ def wait_all(ids: list[str], timeout_s: int, poll_s: float = 1.0) -> dict[str, s
         if len(outcome) < len(ids) and time.monotonic() >= deadline:
             for cid in ids:
                 if cid not in outcome:
-                    subprocess.run(["docker", "stop", cid], capture_output=True)
+                    subprocess.run(["docker", "stop", "-t", str(stop_grace_s), cid], capture_output=True)
                     outcome[cid] = "timeout"
         elif len(outcome) < len(ids):
             time.sleep(poll_s)

@@ -83,7 +83,7 @@ def test_docker_args_never_carry_the_secret_value(tmp_path):
     args = docker_run_args("img", tmp_path / "ws", tmp_path / "out", ["--model", "m"],
                            ("CLAUDE_CODE_OAUTH_TOKEN", "sk-secret"))
     assert "sk-secret" not in " ".join(args)
-    assert args[:3] == ["docker", "run", "-d"]
+    assert args[:3] == ["docker", "run", "-d"] and "--init" in args
     assert ["-e", "CLAUDE_CODE_OAUTH_TOKEN"] == args[args.index("-e"):args.index("-e") + 2]
     assert f"{tmp_path / 'ws'}:/home/analyst/work" in args and f"{tmp_path / 'out'}:/out" in args
     assert args[-5:] == ["img", "--prompt-file", "/out/prompt.md", "--model", "m"]
@@ -96,7 +96,7 @@ def test_wait_all_reports_exit_codes_and_stops_on_timeout():
                                       capture_output=True, text=True, check=True).stdout.strip()
     done, slow = run("sh", "-c", "exit 3"), run("sleep", "60")
     try:
-        assert wait_all([done, slow], timeout_s=5) == {done: "exit:3", slow: "timeout"}
+        assert wait_all([done, slow], timeout_s=5, stop_grace_s=1) == {done: "exit:3", slow: "timeout"}
     finally:
         subprocess.run(["docker", "rm", "-f", done, slow], capture_output=True)
 

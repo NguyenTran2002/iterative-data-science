@@ -27,6 +27,7 @@ HERE = Path(__file__).resolve().parent
 IMAGE = "ids-experiment"
 MODEL, EFFORT = "claude-sonnet-5-5", "high"
 MAX_TURNS, MAX_BUDGET_USD, WALL_CLOCK_S = 1000, 100.0, 14400
+BACKSTOP_S = WALL_CLOCK_S + 900  # the runner stops itself at WALL_CLOCK_S; this is in case it cannot
 CHECK_PROMPT = "Reply with exactly: OK"
 SIDES = ("control", "skill")
 
@@ -63,7 +64,7 @@ def main() -> None:
         wrapper = (HERE / "prompts/wrapper.md").read_text()
         prompts = {side: build_prompt(side, wrapper, brief) for side in SIDES}
         run_args = ["--max-turns", str(MAX_TURNS), "--max-budget-usd", str(MAX_BUDGET_USD)]
-    run_args = ["--model", MODEL, "--effort", EFFORT, *run_args]
+    run_args = ["--model", MODEL, "--effort", EFFORT, "--wall-clock-s", str(WALL_CLOCK_S), *run_args]
 
     image_id = build_image()
     run_id = ("check-" if check else "") + utc_now("%Y-%m-%dT%H%MZ")
@@ -79,7 +80,7 @@ def main() -> None:
         ids[side] = start(IMAGE, workspaces[side], outs[side], prompts[side], run_args, signin)
     print(f"Started {run_id}: " + ", ".join(f"{s} {ids[s][:12]}" for s in SIDES), flush=True)
 
-    outcome = wait_all([ids[s] for s in SIDES], WALL_CLOCK_S)
+    outcome = wait_all([ids[s] for s in SIDES], BACKSTOP_S)
     ended = utc_now()
     redacted = {}
     for side in SIDES:

@@ -102,3 +102,7 @@ No side made a web search, a web fetch or a package install, and no final notebo
 The entry for the decision to run four more pairs gave their purpose as checking "whether the difference in behavior holds across runs". The author corrects this: the extra pairs had been held in reserve in case the first run hit unforeseen errors, and were not an effort to correct or strengthen anything. They ran after the first pair had completed.
 
 The author also notes, for the write-up: the skill was written for an older version of Sonnet. That the current Sonnet produces a sound notebook without it is expected and fine. The experiment's question is whether Claude changes how it works, toward the way a data scientist works, not whether the skill rescues a weak result.
+
+## 2026-11-01T02:55Z: Decision: five pairs for the first release
+
+The author decided the first release has the five pairs already run on the one brief; no second task. Nothing is published yet. The deferred minor findings from the whole-branch review are fixed next. Any new measure they add is computed after the runs and is labelled that way in `metrics.json`.

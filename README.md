@@ -9,7 +9,7 @@ This repository publishes the skill and an experiment: two autonomous Claude Cod
 As a plugin (the skill is then `/iterative-data-science:iterative-data-science`):
 
 ```bash
-claude plugin marketplace add <owner>/iterative-data-science
+claude plugin marketplace add NguyenTran2002/iterative-data-science
 claude plugin install iterative-data-science@iterative-data-science
 ```
 

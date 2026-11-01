@@ -80,3 +80,15 @@ def test_writer_is_told_the_limits_it_is_checked_against():
     from pathlib import Path
     text = (Path(__file__).parents[1] / "prompts/task_writer.md").read_text()
     assert "three or four" in text and "under 500 words" in text and "environment.md" in text
+
+
+def test_questions_written_as_bullets_or_bold_count_when_nothing_is_numbered():
+    bullets = "# Brief\n\n- How do fares vary?\n- When do trips start?\n- Do tips track the fare?\n"
+    bold = "# Brief\n\n**How do fares vary?**\n\n**When do trips start?**\n\n**Do tips track the fare?**\n"
+    assert check_brief(bullets, COLS) == [] and check_brief(bold, COLS) == []
+
+
+def test_question_bullets_under_numbered_questions_are_not_extra_questions():
+    nested = ("1. **Demand.** When is it highest?\n   - By day?\n   - By hour?\n"
+              "2. Where do trips start?\n3. Who pays, and how?\n")
+    assert check_brief(nested, COLS) == []

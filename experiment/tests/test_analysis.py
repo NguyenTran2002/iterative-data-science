@@ -186,3 +186,28 @@ def test_other_notebooks_are_listed(tmp_path):
     (side / "snapshots/other/analysis.nbconvert.ipynb/snap-0001.ipynb").write_text("{}")
     (side / "workspace/scratch.ipynb").write_text("{}")
     assert compute(side)["other_notebooks"] == ["analysis.nbconvert.ipynb", "scratch.ipynb"]
+
+
+def test_added_after_runs_measures_are_kept_apart(tmp_path):
+    side = tmp_path / "side"
+    shutil.copytree(SIDE, side)
+    (side / "packages.txt").write_text("pandas==3.1.0\npyarrow==20.0.0\n")
+    with (side / "messages.jsonl").open("a") as f:
+        f.write(json.dumps({"_type": "AssistantMessage", "content": [
+            {"id": "c1", "name": "Bash", "input": {"command": "curl -sO https://example.org/x.csv"}},
+            {"id": "n1", "name": "Read", "input": {"file_path": "/home/analyst/work/analysis.ipynb"}},
+            {"id": "o1", "name": "Bash", "input": {"command": "ls /out"}}]}) + "\n")
+        f.write(json.dumps({"_type": "UserMessage", "content": [
+            {"tool_use_id": "n1", "content": [{"type": "text", "text": "cell"}, {"type": "image", "source": {}}]}]}) + "\n")
+    nb = json.loads((side / "snapshots/snap-0002.ipynb").read_text())
+    nb["cells"].append({"cell_type": "code", "source": "%pip install pyarrow", "metadata": {},
+                        "execution_count": None, "outputs": []})
+    (side / "snapshots/snap-0002.ipynb").write_text(json.dumps(nb))
+    late = compute(side, pinned={"pandas": "3.1.0"})["added_after_runs"]
+    assert late["packages_not_in_image"] == ["pyarrow==20.0.0"]
+    assert late["notebook_install_cells"] == 1
+    assert late["download_commands"] == 1
+    assert late["images_seen_by_source"] == {"image_file": 1, "notebook": 1}
+    assert late["tool_calls_touching_out"] == 1
+    assert late["skill_text_in_tool_results"] is False
+

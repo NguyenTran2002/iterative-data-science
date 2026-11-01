@@ -15,13 +15,17 @@ import sys
 import tempfile
 from pathlib import Path
 
-from analysis.system_prompt import extract_system_prompt, first_request_has
+from analysis.system_prompt import extract_system_prompt, first_request_has, texts
 from data.fetch_week import CSV
 
 SIDES = ("control", "skill")
 IMAGE_EXTS = {".png", ".jpg", ".jpeg", ".gif", ".svg", ".webp"}
 INSTALL = re.compile(r"\b(pip3?|uv pip|uv add|conda|mamba)\s+install\b|\buv add\b")
 SKILL_MARKER = "# Iterative Data Science Workflow"
+PINS = Path(__file__).resolve().parents[1] / "requirements/analysis.txt"
+NOTEBOOK_INSTALL = re.compile(r"^\s*[%!]\s*(pip3?|uv|conda|mamba)\b.*\binstall\b", re.MULTILINE)
+DOWNLOAD = re.compile(r"\b(curl|wget)\b")
+OUT_PATH = re.compile(r"(?<![\w.~-])/out(?:/|\b)")
 
 
 # --- notebook helpers -------------------------------------------------------
@@ -159,7 +163,68 @@ def other_notebooks(side_dir: Path) -> list[str]:
     return sorted(seen - {"analysis.ipynb"})
 
 
-def compute(side_dir: Path) -> dict:
+# --- measures added after the runs ---------------------------------------------
+# These were not fixed before the runs. They come from the whole-branch review's
+# deferred findings and are kept under "added_after_runs" so they are never
+# mistaken for the counts the spec fixed in advance.
+
+def _norm(name: str) -> str:
+    return re.sub(r"[-_.]+", "-", name).lower()
+
+
+def pinned_packages(path: Path = PINS) -> dict[str, str]:
+    pins = {}
+    for line in path.read_text().splitlines():
+        if m := re.match(r"^([A-Za-z0-9_.\-]+)==([^\s;]+)", line):
+            pins[_norm(m.group(1))] = m.group(2)
+    return pins
+
+
+def added_after_runs(side_dir: Path, messages: list[dict], snapshots: list[Path],
+                     pinned: dict[str, str]) -> dict:
+    packages = side_dir / "packages.txt"
+    not_in_image = []
+    if packages.exists():
+        for line in packages.read_text().splitlines():
+            if (m := re.match(r"^([A-Za-z0-9_.\-]+)==(\S+)", line)) and pinned.get(_norm(m.group(1))) != m.group(2):
+                not_in_image.append(line)
+
+    install_cells = set()
+    for path in [*snapshots, side_dir / "workspace/analysis.ipynb"]:
+        try:
+            cells = _code_cells(_load(path)).values()
+        except (OSError, ValueError):
+            continue
+        install_cells |= {_source(c) for c in cells if NOTEBOOK_INSTALL.search(_source(c))}
+
+    tool_uses = {b["id"]: b for b in _blocks(messages) if "name" in b and "input" in b and "id" in b}
+    seen = {}
+    skill_text = False
+    for result in (b for b in _blocks(messages) if "tool_use_id" in b):
+        content = result.get("content")
+        items = content if isinstance(content, list) else []
+        if any(SKILL_MARKER in t for t in texts(content)):
+            skill_text = True
+        n_images = sum(1 for i in items if isinstance(i, dict) and i.get("type") == "image")
+        if n_images:
+            use = tool_uses.get(result["tool_use_id"], {})
+            suffix = Path(str(use.get("input", {}).get("file_path", ""))).suffix.lower()
+            kind = "notebook" if suffix == ".ipynb" else "image_file" if suffix in IMAGE_EXTS else "other"
+            seen[kind] = seen.get(kind, 0) + n_images
+
+    inputs = [json.dumps(b["input"]) for b in tool_uses.values()]
+    return {
+        "packages_not_in_image": not_in_image,
+        "notebook_install_cells": len(install_cells),
+        "download_commands": sum(1 for b in tool_uses.values()
+                                 if b["name"] == "Bash" and DOWNLOAD.search(b["input"].get("command", ""))),
+        "images_seen_by_source": dict(sorted(seen.items())),
+        "tool_calls_touching_out": sum(1 for i in inputs if OUT_PATH.search(i)),
+        "skill_text_in_tool_results": skill_text,
+    }
+
+
+def compute(side_dir: Path, pinned: dict[str, str] | None = None) -> dict:
     workspace = side_dir / "workspace"
     notebook = workspace / "analysis.ipynb"
     snapshots = sorted((side_dir / "snapshots").glob("snap-*.ipynb"))
@@ -172,7 +237,8 @@ def compute(side_dir: Path) -> dict:
     m |= final_notebook(notebook) if notebook.exists() else {"notebook_valid": False, **EMPTY_FINAL}
     m["figures_created"] = len(figures)
     m["other_notebooks"] = other_notebooks(side_dir)
-    m |= log_counts(_messages(side_dir))
+    messages = _messages(side_dir)
+    m |= log_counts(messages)
     m |= {
         "turns": result.get("num_turns"),
         "duration_s": result["duration_ms"] / 1000 if result.get("duration_ms") is not None else None,
@@ -182,6 +248,8 @@ def compute(side_dir: Path) -> dict:
         "cache_read_input_tokens": usage.get("cache_read_input_tokens"),
         "cache_creation_input_tokens": usage.get("cache_creation_input_tokens"),
     }
+    m["added_after_runs"] = added_after_runs(side_dir, messages, snapshots,
+                                             pinned if pinned is not None else pinned_packages())
     return m
 
 

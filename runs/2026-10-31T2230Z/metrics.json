@@ -31,6 +31,16 @@
     "output_tokens": 39498,
     "cache_read_input_tokens": 886925,
     "cache_creation_input_tokens": 70888,
+    "added_after_runs": {
+      "packages_not_in_image": [],
+      "notebook_install_cells": 0,
+      "download_commands": 0,
+      "images_seen_by_source": {
+        "image_file": 7
+      },
+      "tool_calls_touching_out": 0,
+      "skill_text_in_tool_results": false
+    },
     "fresh_reexecution": true
   },
   "skill": {
@@ -77,6 +87,16 @@
     "output_tokens": 39571,
     "cache_read_input_tokens": 1290596,
     "cache_creation_input_tokens": 85054,
+    "added_after_runs": {
+      "packages_not_in_image": [],
+      "notebook_install_cells": 0,
+      "download_commands": 0,
+      "images_seen_by_source": {
+        "image_file": 6
+      },
+      "tool_calls_touching_out": 0,
+      "skill_text_in_tool_results": false
+    },
     "fresh_reexecution": true
   }
 }

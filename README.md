@@ -28,6 +28,7 @@ Results will appear here after the first pair runs.
 - **Autonomous, non-interactive Claude Code.** Each run is Claude Code driven by the Claude Agent SDK with Claude Code's own system prompt preset, which the feasibility probe found identical to `claude -p` and slightly different from the interactive terminal ([probe notes](docs/probe-2026-10-31.md)). No human is in the loop during a run.
 - **Model.** Sonnet 5.5 (`claude-sonnet-5-5`) at effort `high` on both sides.
 - **Full internet.** Both runs can search and fetch from the web, as a person using Claude Code can. Every search, fetch and package install is listed per side.
+- **The agent could see its own log folder.** Each run's container mounts an output folder (`/out`) where the runner writes the message log and notebook snapshots, and the agent's user could read it. The setup is the same on both sides, and no published run touched it (`tool_calls_touching_out` in `metrics.json`).
 - **Signed in with a plan token.** The published runs used a Claude plan token. The launcher also accepts an API key; each run records which it used.
 - **Designed by the skill's author.** The author wrote the skill and designed this experiment. The next section lists what was done so that the design could not tilt the result.
 

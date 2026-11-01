@@ -31,3 +31,19 @@ def test_count_rows_skips_header_and_respects_quoted_newlines(tmp_path):
     p = tmp_path / "t.csv"
     p.write_text('"a","b"\n"1","x"\n"2","line\nbreak"\n')
     assert count_rows(p) == 2
+
+
+def test_a_changed_download_leaves_the_good_csv_in_place(tmp_path, monkeypatch):
+    import json
+    from data import fetch_week
+    good = tmp_path / "trips.csv"
+    good.write_text("a\n1\n")
+    week = tmp_path / "week.json"
+    week.write_text(json.dumps({"monday": "2023-09-11", "sunday": "2023-09-17",
+                                "sha256": fetch_week.sha256(good)}))
+    monkeypatch.setattr(fetch_week, "CSV", good)
+    monkeypatch.setattr(fetch_week, "WEEK_JSON", week)
+    monkeypatch.setattr(fetch_week, "download", lambda url, dest: dest.write_text("a\n2\n"))
+    with pytest.raises(ValueError):
+        fetch_week.main()
+    assert good.read_text() == "a\n1\n"

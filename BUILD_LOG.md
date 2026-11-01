@@ -106,3 +106,14 @@ The author also notes, for the write-up: the skill was written for an older vers
 ## 2026-11-01T02:55Z: Decision: five pairs for the first release
 
 The author decided the first release has the five pairs already run on the one brief; no second task. Nothing is published yet. The deferred minor findings from the whole-branch review are fixed next. Any new measure they add is computed after the runs and is labelled that way in `metrics.json`.
+
+## 2026-11-01T03:01Z: Deferred review findings fixed
+
+Fixed test-first, with the suite at 71 passing. None of these changes any count fixed before the runs; recomputing `metrics.json` for all five pairs left every one of those keys unchanged, including the fresh re-execution.
+
+- **Runner:** `init.json` keeps the first init message. Each published run had exactly one, so nothing changes for them.
+- **Data:** `fetch_week` checks a download's checksum before it replaces the local CSV.
+- **Brief checks:** questions written as top-level bullets or bold lines count when nothing is numbered. The accepted brief still passes.
+- **Image:** `requirements/runner.txt` pins every package of the runner environment at the versions in the image the pairs used. A rebuild gives an identical runner environment.
+- **README:** states that the agent could read its own `/out` log folder.
+- **New measures, under `added_after_runs` in `metrics.json`:** added after the runs and kept apart from the counts the spec fixed in advance. Packages not in the image's pinned set, install cells in any notebook version, `curl`/`wget` commands, images the model saw by source (image file or notebook), tool calls touching `/out`, and SKILL.md text in tool results. Across all ten sides: no installs, no downloads, no `/out` access, and no SKILL.md text on any control side. Every image the model saw came from a saved image file.

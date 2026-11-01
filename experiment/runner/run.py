@@ -49,7 +49,8 @@ async def run(cfg: RunConfig, query_fn=query) -> dict:
             async for message in stream:
                 log.write(json.dumps(serialize(message), default=str) + "\n")
                 log.flush()
-                if isinstance(message, SystemMessage) and message.subtype == "init":
+                if (isinstance(message, SystemMessage) and message.subtype == "init"
+                        and not (out / "init.json").exists()):  # the first; all are in the log
                     (out / "init.json").write_text(json.dumps(message.data, indent=2, default=str))
                 elif isinstance(message, ResultMessage):
                     result |= {"status": status_of(message.subtype, message.is_error),

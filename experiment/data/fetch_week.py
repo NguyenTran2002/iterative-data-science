@@ -54,15 +54,13 @@ def count_rows(csv_path: Path) -> int:
         return sum(1 for _ in csv.reader(f)) - 1
 
 
-def download(url: str, dest: Path) -> None:
-    part = dest.with_suffix(".part")
+def download(url: str, part: Path) -> None:
     for attempt in range(1, ATTEMPTS + 1):
         print(f"Downloading (attempt {attempt} of {ATTEMPTS}); this takes a few minutes...", flush=True)
         try:
             with urllib.request.urlopen(url, timeout=600) as r, part.open("wb") as f:
                 while chunk := r.read(1 << 20):
                     f.write(chunk)
-            part.replace(dest)
             return
         except OSError as e:
             print(f"Download failed: {e}", flush=True)
@@ -74,13 +72,16 @@ def download(url: str, dest: Path) -> None:
 def main() -> None:
     week = json.loads(WEEK_JSON.read_text())
     url = soql_url(date.fromisoformat(week["monday"]), date.fromisoformat(week["sunday"]))
-    download(url, CSV)
-    rows = count_rows(CSV)
+    part = CSV.with_suffix(".part")  # checked before it replaces a good copy
+    download(url, part)
+    rows = count_rows(part)
     check_rows(rows, LIMIT)
     if "sha256" in week:
-        verify(CSV, week["sha256"])
+        verify(part, week["sha256"])
+        part.replace(CSV)
         print(f"Checksum verified: {rows:,} rows, SHA-256 {week['sha256']}")
         return
+    part.replace(CSV)
     week |= {"rows": rows, "bytes": CSV.stat().st_size, "sha256": sha256(CSV)}
     WEEK_JSON.write_text(json.dumps(week, indent=2) + "\n")
     print(f"Recorded {rows:,} rows, {week['bytes']:,} bytes, SHA-256 {week['sha256']}")

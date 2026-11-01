@@ -175,3 +175,15 @@ def test_workspace_watcher_follows_every_notebook(tmp_path):
     found = sorted(str(p.relative_to(snaps)) for p in snaps.rglob("snap-*.ipynb"))
     assert found == ["other/analysis.nbconvert.ipynb/snap-0001.ipynb",
                      "other/sub/Other.ipynb/snap-0001.ipynb", "snap-0001.ipynb"]
+
+
+def test_init_json_keeps_the_first_init(tmp_path):
+    later = SystemMessage(subtype="init", data={"claude_code_version": "later"})
+
+    async def two_inits(prompt, options):
+        yield INIT
+        yield REPLY
+        yield later
+
+    asyncio.run(run(cfg_with_out(tmp_path), query_fn=two_inits))
+    assert json.loads((tmp_path / "init.json").read_text())["claude_code_version"] == "2.1.316"

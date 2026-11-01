@@ -24,16 +24,16 @@ def extract_system_prompt(bodies: Path) -> str:
     return "\n\n".join(b for b in blocks if not b.startswith(BILLING_PREFIX))
 
 
-def _texts(content) -> list[str]:
+def texts(content) -> list[str]:
     if isinstance(content, str):
         return [content]
     if isinstance(content, list):
-        return [t for item in content for t in _texts(item)]
+        return [t for item in content for t in texts(item)]
     if isinstance(content, dict):
-        return [t for key in ("text", "content") if key in content for t in _texts(content[key])]
+        return [t for key in ("text", "content") if key in content for t in texts(content[key])]
     return []
 
 
 def first_request_has(bodies: Path, marker: str) -> bool:
     """Whether the first main-thread request's messages contain `marker`."""
-    return any(marker in t for t in _texts(_first_main_request(bodies)["messages"]))
+    return any(marker in t for t in texts(_first_main_request(bodies)["messages"]))

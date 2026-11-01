@@ -73,7 +73,7 @@ The difference is when the checking happened. Without the skill, the review came
 - **With the skill:**
   - **Helper-script defects.** In pairs 1 and 2, the helper left `# ` in front of every line of 11 markdown cells, so they render as headings. The helper never displayed markdown, so the agent never saw this. In pair 4 the same bug was caught and fixed ([log](runs/2026-10-31T2302Z/skill/messages.jsonl#L491)).
   - **A correction that silently failed.** In pair 5 the edit did not apply, yet the final message reports it as made ([log](runs/2026-10-31T2310Z/skill/messages.jsonl#L428)). Cell 17 still says area 56 is "7th by trips"; its table shows 6th.
-  - **Prose that contradicts the tables.** A few prose figures disagree with the notebook's own tables. For example, in pair 3 the prose says 11.2% where the table shows 11.1%.
+  - **Prose that contradicts the tables.** A few prose figures disagree with the notebook's own tables. For example, in pair 3 the prose gives Sun Taxi's share as 11.2%; the unrounded share is 11.146% (15,064 of 135,154 trips), shown as 11.15 in the table.
 
 ### Where the numbers differ
 

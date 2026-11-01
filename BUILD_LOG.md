@@ -151,3 +151,7 @@ This entry should have been written at 21:22Z, but the command that appended it 
 ## 2026-11-01T04:37Z: The model choice, and why only one
 
 The author recorded the reason for running the experiment on Sonnet 5.5 rather than on the models the skill was written with: the aim is to examine whether the skill is still relevant as of now. The experiment does not cover other models or effort settings, because of cost and practicality.
+
+## 2026-11-01T23:11Z: Corrections
+
+- **Pair 3 rounding example in the README.** The README said the pair 3 skill-side table shows Sun Taxi at 11.1%. The table shows 11.15 (cell 32). The unrounded share is 11.146% (15,064 of 135,154 trips; cell 8 gives the analysis set), so the prose's 11.2% (cell 35) is still off: rounded to one decimal, the share is 11.1%. The README sentence now gives the prose figure, the unrounded share and the table value.

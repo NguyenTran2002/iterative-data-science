@@ -131,3 +131,11 @@ At the author's go-ahead, `metrics.json` now has `added_after_runs.batch_sizes_b
 | 5 | 14, 3.5 | 3, 2 |
 
 Note for the write-up, read from the logs: both sides looked at every figure and changed things after looking. The control first viewed a figure 52–68% of the way through its tool calls, after the whole notebook was built. It then viewed the figures in a row, fixed plot formatting and in several runs numbers in its own prose (pair 1: "800–920 trips an hour" became "790–920"), and re-viewed some. The skill side first viewed a figure 39–45% of the way through, and its later views alternate with edits.
+
+## 2026-11-01T03:19Z: Late entry: the week was drawn and fetched at 2026-10-31T21:22Z
+
+This entry should have been written at 21:22Z, but the command that appended it stopped at an earlier failing step, so the commit that recorded the draw holds only `week.json`. The facts below come from that file and the fetch scripts' output at the time.
+
+- `python -m data.draw_week` drew index 35 of 50: **Monday 2023-09-11 to Sunday 2023-09-17**. The draw is final.
+- First fetch, 21:22:29Z to 21:23:09Z: 135,768 rows, 61,133,584 bytes, SHA-256 `ea55bda9551a8908f3d05ff67afbd48013ec57eb02eb243f7cf95538f47ecf8a`, recorded in `experiment/data/week.json`.
+- Second fetch, 21:23:56Z to 21:24:37Z: the checksum matched.

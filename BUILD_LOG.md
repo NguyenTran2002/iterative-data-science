@@ -139,3 +139,11 @@ This entry should have been written at 21:22Z, but the command that appended it 
 - `python -m data.draw_week` drew index 35 of 50: **Monday 2023-09-11 to Sunday 2023-09-17**. The draw is final.
 - First fetch, 21:22:29Z to 21:23:09Z: 135,768 rows, 61,133,584 bytes, SHA-256 `ea55bda9551a8908f3d05ff67afbd48013ec57eb02eb243f7cf95538f47ecf8a`, recorded in `experiment/data/week.json`.
 - Second fetch, 21:23:56Z to 21:24:37Z: the checksum matched.
+
+## 2026-11-01T04:20Z: Corrections
+
+- **Draft 5 cost.** Run `2026-10-31T2200Z` cost an estimated $0.10 (`result.json`: $0.1047), not $0.11.
+- **Draft lengths.** The five rejected drafts ran 682 to 912 words, not "680 to 910".
+- **"Questions counted" for drafts 1 to 5.** That column came from the original counter, which counted every numbered line, so it also counted numbered deliverables, and it missed questions written as bold lines. Drafts 2, 4 and 5 write their four questions as bold lines, so "3–4 (passed)" counted their numbered deliverables (four in draft 2, three in drafts 4 and 5). No rejection depended on the column: all five drafts failed the word check.
+- **"The same image" across pairs** means the same inputs and contents. Each pair rebuilt the image and got a new image ID: `0c6c608c`, `aa7be566`, `1abfc503`, `7152cb37`, `2c37e982` for pairs 1 to 5. Every side's `packages.txt` is identical, and every side ran Claude Code 2.1.316.
+- **Cell IDs on both sides.** The control side also regenerated its notebook with new cell IDs: in every pair, many of its snapshots replace every code-cell ID, because it rebuilt the notebook from a script. Its ID-matched batch sizes are inflated in the same way (pair 1: 16, 16, 16, 16, 16 by ID; 16, 2, 2, 0, 2 by code text), and its rework count of 0 may undercount. The skill side did the same in pairs 4 and 5. The rework count is therefore not comparable between the sides.

@@ -12,6 +12,8 @@ The experiment is neutral. The skill's author designed it, and the README says s
 
 The first release is **one pair**: one run with the skill and one without, launched together. It is a worked example of the difference, not a statistical result. More pairs, tasks and models can be added later under the same frozen settings.
 
+*Amended: five pairs were run, and the first release has all five (§12).*
+
 ## 2. Decisions
 
 | Topic | Decision |
@@ -30,6 +32,8 @@ The first release is **one pair**: one run with the skill and one without, launc
 | Pairs | One pair first. More only by explicit decision, all published |
 | Caps | Runaway guards only (§6). Hitting one is a result, never a reason to rerun |
 | License | Apache 2.0 for the skill and the code. The taxi data stays under the City of Chicago portal's terms and is never stored in the repo |
+
+*Amended: five pairs were run (§12).*
 
 ## 3. Data
 
@@ -134,14 +138,18 @@ It runs through the same image and runner with three differences: model `claude-
 
 No rows.
 
+*Amended: from draft 6 on, the folder also holds `environment.md` (§12).*
+
 **Its instructions** (`experiment/prompts/task_writer.md`, published verbatim):
 
 > `dataset.md` describes one week of Chicago taxi trip records. Write `brief.md`: the brief a manager would hand to a data analyst for this data. Include three or four routine business questions that can be answered from the listed columns. Scope it so a competent analyst can finish in one sitting of about two to three hours. Use only the files in this folder.
 
+*Amended: these are the instructions as first written, used for drafts 1 to 5. The current `experiment/prompts/task_writer.md` is the amended version used for draft 6 (§12).*
+
 **Acceptance checks**, applied to the first draft and to each redraw:
 
 1. `brief.md` exists and contains three or four questions.
-2. It is under 400 words.
+2. It is under 400 words. *Amended: under 500 words from draft 6 (§12).*
 3. It names no column that is not in `dataset.md`.
 4. Its log shows no access to the data: no fetch of the portal's data endpoints and no download of trip rows.
 
@@ -163,7 +171,11 @@ Order, each step committed before the next:
 4. A system-prompt check with the real image: one trivial prompt per side, confirming both sides get the same system prompt and that the skill side's first request contains the SKILL.md. Cost: cents.
 5. The pair.
 
+*Amended: the system-prompt check (step 4) ran before the brief was accepted. It does not use the brief (§13).*
+
 **Caps**, the same on both sides and set only to stop a runaway run: `max_turns=1000`, `max_budget_usd=100` (the SDK's list-price estimate), and a 4-hour wall clock enforced by the launcher. A run that hits a cap is recorded with its status and analysed like any other.
+
+*Amended: the runner enforces the wall clock and records `error_wall_clock`; the launcher keeps a backstop 15 minutes later (§13).*
 
 **Green light.** Every paid step (the task writer, the system-prompt check, the pair) runs only after the author's explicit go-ahead.
 
@@ -186,6 +198,8 @@ Agents edit notebooks in many ways (the probe's agent rewrote the JSON from a Ba
 - **Cost and effort:** turns, wall-clock duration, estimated cost, input and output tokens.
 - **Outside activity:** every web search, web fetch and package install, listed per side. If the control side ever reached this repository or the skill text, that is reported, and the run is kept.
 
+*Amended: measures added after the runs are kept apart from these counts (§12). §13 states a limit of the cell-ID matching, on both sides.*
+
 **Consequences** (written by hand, every claim quoted from the log): moments where reading an output changed the next step, and visible defects left in the final notebook (an empty or unreadable figure, a table of NaNs, text that describes a figure wrongly). Both sides get the same treatment.
 
 **Disagreements:** where the two notebooks report different values for the same quantity, the difference is traced through each notebook's own code to the step where they part ways, and stated as a fact about the code ("A dropped zero-mile trips before averaging; B did not"). One side is called wrong only for a bug anyone can see once it is pointed out. Otherwise the README states the difference, its cause, and that we cannot say which choice is right.
@@ -193,6 +207,8 @@ Agents edit notebooks in many ways (the probe's agent rewrote the JSON from a Ba
 **System prompt:** the two sides' `system_prompt.txt` files compared. The README states whether they matched.
 
 ## 8. Repository layout
+
+*Amended: the list below shows the layout as built.*
 
 ```
 README.md                         results first, then install, then how to reproduce
@@ -210,12 +226,13 @@ experiment/
   run_pair.py  run_task_writer.py
   tests/
   data/draw_week.py  data/fetch_week.py  data/dataset_md.py  data/week.json
-  prompts/task_writer.md  prompts/wrapper.md
-  task/brief.md  task/rejected/
-  analysis/metrics.py  analysis/compare_system_prompts.py
+  prompts/task_writer.md  prompts/environment.md  prompts/wrapper.md
+  task/brief.md  task/dataset.md  task/rejected/  task/runs/
+  analysis/metrics.py  analysis/system_prompt.py
 runs/<run-id>/
-  pair.json  metrics.json
+  pair.json  metrics.json  system_prompts.json
   control/  skill/                as listed in §4
+runs/check-<UTC>/                 the system-prompt check, same files
 docs/
   design/                         this design and the implementation plan
   probe-2026-10-31.md             what the feasibility probe established (§11)
@@ -223,7 +240,7 @@ docs/
 
 **The skill** is published byte for byte as the author uses it. Installing:
 
-- as a plugin: `claude plugin marketplace add <owner>/iterative-data-science` (the GitHub owner is filled in when the repository is published), then `claude plugin install iterative-data-science@iterative-data-science`. The skill is then `/iterative-data-science:iterative-data-science`.
+- as a plugin: `claude plugin marketplace add NguyenTran2002/iterative-data-science`, then `claude plugin install iterative-data-science@iterative-data-science`. The skill is then `/iterative-data-science:iterative-data-science`.
 - by hand: copy `plugins/iterative-data-science/skills/iterative-data-science/` into `~/.claude/skills/` (or a project's `.claude/skills/`). The skill is then `/iterative-data-science`.
 
 `claude plugin validate .` must pass before publishing.
@@ -232,7 +249,7 @@ docs/
 
 1. What the skill is, in two sentences, and how to install it.
 2. The pair's findings: a side-by-side table of the behavior counts, then the consequences and disagreements, each linked to the exact log lines and notebook cells.
-3. What the experiment does and does not show: behavior, not accuracy; one pair; autonomous runs using Claude Code's non-interactive setup (identical system prompt to `claude -p`), not the interactive terminal; full internet; signed in with a plan token; the skill's author designed it.
+3. What the experiment does and does not show: behavior, not accuracy; one pair; autonomous runs using Claude Code's non-interactive setup (identical system prompt to `claude -p`), not the interactive terminal; full internet; signed in with a plan token; the skill's author designed it. *Amended: five pairs (§12).*
 4. How it was kept neutral: the drawn week, the clean-room brief, the counts fixed in advance, every run published.
 5. How to reproduce: Docker, a plan token or API key, `fetch_week.py`, `run_pair.py`, the expected cost per run.
 6. License: Apache 2.0 for the skill and code; the data is the City of Chicago's, under its portal's terms.
@@ -249,7 +266,7 @@ The SKILL.md says Claude cannot see inline notebook renders. The README presents
 
 ## 10. Out of scope for the first release
 
-- More pairs, other tasks, other datasets, other models (Opus), and the "left for Claude to load" setup. The layout leaves room for them under `runs/` and `experiment/task/`.
+- More pairs, other tasks, other datasets, other models (Opus), and the "left for Claude to load" setup. The layout leaves room for them under `runs/` and `experiment/task/`. *Amended: five pairs were run (§12).*
 - Accuracy grading, rubrics and judges.
 - Enforcing the skill's rules with hooks.
 
@@ -266,7 +283,7 @@ Run on the author's machine with throwaway scripts; raw API request bodies captu
 - An agent that could not find its data file searched the machine's temp folder and the home directory. Hence containers.
 - The skill loads from a project's `.claude/skills/` folder and through the SDK's `plugins` option. Called by name, its full text is in the first request; with a trivial prompt and no slash command it was not loaded.
 - A small notebook task with the skill: 11 turns, 58 seconds, $0.14 estimated. The agent executed the notebook with `jupyter nbconvert`, opened its saved PNG (the image reached the model), and caught a planted 999 °F value.
-- On the author's machine, plan sign-in added account context to the conversation (the account's email address and the global git user name). Inside the container there is no git configuration; the system-prompt check (§6, step 4) records what account context remains. Whatever it is, it is the same on both sides.
+- On the author's machine, plan sign-in added account context to the conversation (the account's email address and the global git user name). Inside the container there is no git configuration; the system-prompt check (§6, step 4) records what account context remains. Whatever it is, it is the same on both sides. *Amended: see §13 for the result.*
 
 ## 12. Amendments
 
@@ -277,3 +294,22 @@ Run on the author's machine with throwaway scripts; raw API request bodies captu
 - A question is now counted only where a numbered item or heading contains a question mark, so numbered deliverables no longer count.
 - Both sides of the pair get the same `dataset.md` the accepted brief's writer saw (`experiment/task/dataset.md`), next to `trips.csv`.
 - The five earlier drafts stay published as rejected under the original setup.
+
+**2026-10-31T22:43Z to 2026-11-01T02:55Z, five pairs (author's decisions).** The four pairs after the first had been held in reserve in case the first run hit unforeseen errors. They ran after the first pair had completed, one after another, on the same brief, data, model, settings and caps (`runs/2026-10-31T2244Z/` to `runs/2026-10-31T2310Z/`). The first release has these five pairs.
+
+**2026-11-01T03:01Z and 03:16Z, measures added after the runs.** Each side's `metrics.json` gains a block, `added_after_runs`, kept apart from the counts fixed in §7 and not part of them: `batch_sizes_by_source`, `packages_not_in_image`, `notebook_install_cells`, `download_commands`, `images_seen_by_source`, `tool_calls_touching_out` and `skill_text_in_tool_results`. Recomputing `metrics.json` for all five pairs left every pre-registered key unchanged.
+
+## 13. How the build differed from the design, and limits of the counts
+
+- **Wall clock.** The runner, not the launcher, enforces the 4-hour limit and records `error_wall_clock`. The launcher stops a container only as a backstop, 15 minutes later.
+- **Data-access check.** The task writer's check flags any tool call that mentions the portal (`cityofchicago.org`) or the dataset ID (`wrvz-psew`), not only fetches of data endpoints.
+- **System-prompt check.** It ran before the brief was accepted and does not use the brief. Each side got a two-part prompt ("Reply with exactly: OK", a blank line, "Do nothing else.") with a cap of 2 turns and an estimated $1.
+- **Snapshots.** The watcher snapshots every notebook in the workspace, not only `analysis.ipynb`. Other notebooks go under `snapshots/other/`.
+- **Files kept out of git.** Data files and files over 25 MB are kept out of git by a per-run `.gitignore`, and recorded in `pair.json` under `held_back_from_git`. None were held back in these runs.
+- **Raw JSON.** Snapshots are read and compared as raw JSON, not through `nbformat`, which gives a new random ID to any cell that lacks one.
+- **Runner pin.** Since 2026-11-01T03:01Z, `requirements/runner.txt` pins every package of the runner environment at the exact versions in the image the pairs used, not only `claude-agent-sdk`.
+- **Image IDs.** Each pair rebuilt the image, so the image ID differs per pair. The image's inputs did not change across the six task-writer drafts, the system-prompt check and the five pairs, yet each of those twelve builds has a different ID: a rebuild with no input change gives a new ID. Every side's `packages.txt` is identical, and every side ran Claude Code 2.1.316.
+- **Figures outside the workspace.** Every control side saved its figures under `/tmp`, outside the workspace, and opened them there. "Image files saved in the workspace" is therefore 0 for every control side.
+- **Cell IDs.** The control side regenerated its notebook with new cell IDs in every pair, and the skill side did so in pairs 4 and 5. For those sides the ID-matched batch sizes are inflated, and the rework count may undercount, so rework is not comparable between the sides. `added_after_runs.batch_sizes_by_source` matches cells by their code text instead.
+- **"Every run".** It covers every run of the experiment's setup. The feasibility probe's exploratory scripts and a single one-call sign-in test are not part of it.
+- **Account context.** The only email addresses in either side's raw requests in the system-prompt check were `@anthropic.com` addresses. No account email or git identity reached the containers.

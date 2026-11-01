@@ -336,3 +336,20 @@ Question counting: top-level numbered items (`^\d+\.`) or headed questions (`^#+
 - [ ] **Step 1:** Read both final notebooks, both logs and `metrics.json` in full. Write the consequences (each quoted from the log, both sides treated the same) and trace every disagreement on a checkable number to its cause in the code, per spec §7.
 - [ ] **Step 2:** Fill README section 2: the counts table, the consequences, the disagreements, each linked to the exact files and cells. Present the SKILL.md's inline-render line as the observation the skill was written from, alongside the figure counts.
 - [ ] **Step 3:** Commit "Write up the first pair". Ask the author to read the README before anything is pushed.
+
+## Where the build differed from this plan
+
+The tasks above are the plan as written before the build. `BUILD_LOG.md` records what happened, and spec §§12–13 record the amendments.
+
+- **Five pairs.** Task 12 ran one pair. Four more ran after it on the same brief, data, model, settings and caps, and the first release has all five.
+- **Task 10.** The writer was stopped after five drafts, all rejected on length, instead of being rerun unchanged. It resumed under the amended setup (spec §12): `environment.md` in the writer's folder, the limits stated in its instructions, a 500-word cap, a question counter that skips numbered deliverables, and `dataset.md` in both sides' folders. Draft 6 was accepted.
+- **Task 11 ran before the brief was accepted.** The system-prompt check does not use the brief.
+- **WorkspaceWatcher.** The runner snapshots every notebook in the workspace, not only `analysis.ipynb`.
+- **Wall clock.** The runner enforces the 4-hour limit and records `error_wall_clock`. The launcher keeps a backstop 15 minutes later.
+- **`--init`.** Containers start with `docker run --init`, so a `docker stop` reaches the runner, which records `error_terminated`.
+- **Check prompt.** The system-prompt check sends a two-part prompt ("Reply with exactly: OK", a blank line, "Do nothing else."), shaped like the pair's wrapper and brief, with 2 turns and an estimated $1 cap.
+- **Hold-back.** Data files and files over 25 MB in a run folder are kept out of git by a per-run `.gitignore` and listed in `pair.json`.
+- **Raw JSON.** `metrics.py` reads notebooks as raw JSON, not through `nbformat`.
+- **`added_after_runs`.** Measures added after the runs sit under their own key in `metrics.json`, apart from the counts the spec fixed.
+- **Runner pin.** `requirements/runner.txt` pins every package of the runner environment, not only `claude-agent-sdk`.
+- **Base images.** The Dockerfile pins `python:3.13-slim` and the `uv` image by digest.

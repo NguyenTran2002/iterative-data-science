@@ -96,3 +96,9 @@ Runs `runs/2026-10-31T2244Z/`, `…T2253Z/`, `…T2302Z/`, `…T2310Z/`, one aft
 No side made a web search, a web fetch or a package install, and no final notebook had a cell error. Every control side saved its figures outside the workspace (under `/tmp`) and opened them there.
 
 **A limit of the batch-size count, as the spec anticipated for rework.** In pairs 4 and 5 the skill side rebuilt the notebook from a script on each pass, so every cell got a new ID each time. The ID-matched batch sizes in `metrics.json` therefore count whole notebooks as new, and those two sides' medians (8.5 and 9) are inflated. The committed definitions are not changed after the runs. A source-matched recount, added after seeing the runs and labelled as such, appears with the write-up.
+
+## 2026-11-01T02:35Z: Correction: why pairs 2 to 5 were run
+
+The entry for the decision to run four more pairs gave their purpose as checking "whether the difference in behavior holds across runs". The author corrects this: the extra pairs had been held in reserve in case the first run hit unforeseen errors, and were not an effort to correct or strengthen anything. They ran after the first pair had completed.
+
+The author also notes, for the write-up: the skill was written for an older version of Sonnet. That the current Sonnet produces a sound notebook without it is expected and fine. The experiment's question is whether Claude changes how it works, toward the way a data scientist works, not whether the skill rescues a weak result.

@@ -180,6 +180,27 @@ def pinned_packages(path: Path = PINS) -> dict[str, str]:
     return pins
 
 
+def batch_sizes_by_source(snapshots: list[Path]) -> list[int]:
+    """Batch sizes with cells matched by their code text instead of their ID.
+
+    An agent that regenerates the notebook from a script gives every cell a new ID on
+    each pass, so the ID-matched count treats the whole notebook as new each time.
+    """
+    sizes: list[int] = []
+    prev: dict[str, dict] = {}
+    at_last_execution: set[str] = set()
+    for path in snapshots:
+        try:
+            cells = list(_code_cells(_load(path)).values())
+        except ValueError:
+            continue
+        if any(_executed(c, prev.get(_source(c))) for c in cells):
+            sizes.append(sum(1 for c in cells if _source(c) not in at_last_execution))
+            at_last_execution = {_source(c) for c in cells}
+        prev = {_source(c): c for c in cells}
+    return sizes
+
+
 def added_after_runs(side_dir: Path, messages: list[dict], snapshots: list[Path],
                      pinned: dict[str, str]) -> dict:
     packages = side_dir / "packages.txt"
@@ -214,6 +235,7 @@ def added_after_runs(side_dir: Path, messages: list[dict], snapshots: list[Path]
 
     inputs = [json.dumps(b["input"]) for b in tool_uses.values()]
     return {
+        "batch_sizes_by_source": batch_sizes_by_source(snapshots),
         "packages_not_in_image": not_in_image,
         "notebook_install_cells": len(install_cells),
         "download_commands": sum(1 for b in tool_uses.values()

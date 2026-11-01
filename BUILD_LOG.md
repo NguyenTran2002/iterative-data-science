@@ -117,3 +117,17 @@ Fixed test-first, with the suite at 71 passing. None of these changes any count 
 - **Image:** `requirements/runner.txt` pins every package of the runner environment at the versions in the image the pairs used. A rebuild gives an identical runner environment.
 - **README:** states that the agent could read its own `/out` log folder.
 - **New measures, under `added_after_runs` in `metrics.json`:** added after the runs and kept apart from the counts the spec fixed in advance. Packages not in the image's pinned set, install cells in any notebook version, `curl`/`wget` commands, images the model saw by source (image file or notebook), tool calls touching `/out`, and SKILL.md text in tool results. Across all ten sides: no installs, no downloads, no `/out` access, and no SKILL.md text on any control side. Every image the model saw came from a saved image file.
+
+## 2026-11-01T03:16Z: Text-matched batch sizes added, labelled
+
+At the author's go-ahead, `metrics.json` now has `added_after_runs.batch_sizes_by_source`. It counts batch size with cells matched by their code text instead of their ID, because in pairs 4 and 5 the skill side regenerated its notebook with new cell IDs on every pass. The committed ID-matched `batch_sizes` stay as they were. Recomputing changed none of the counts fixed in advance.
+
+| Pair | Control: largest batch, median | Skill: largest batch, median |
+|---|---|---|
+| 1 | 16, 2 | 3, 1.5 |
+| 2 | 17, 17 (one execution) | 3, 1 |
+| 3 | 17, 3 | 3, 2 |
+| 4 | 20, 2 | 3, 1 |
+| 5 | 14, 3.5 | 3, 2 |
+
+Note for the write-up, read from the logs: both sides looked at every figure and changed things after looking. The control first viewed a figure 52–68% of the way through its tool calls, after the whole notebook was built. It then viewed the figures in a row, fixed plot formatting and in several runs numbers in its own prose (pair 1: "800–920 trips an hour" became "790–920"), and re-viewed some. The skill side first viewed a figure 39–45% of the way through, and its later views alternate with edits.

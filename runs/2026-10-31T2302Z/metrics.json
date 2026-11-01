@@ -31,6 +31,12 @@
     "cache_read_input_tokens": 660474,
     "cache_creation_input_tokens": 50294,
     "added_after_runs": {
+      "batch_sizes_by_source": [
+        20,
+        2,
+        0,
+        2
+      ],
       "packages_not_in_image": [],
       "notebook_install_cells": 0,
       "download_commands": 0,
@@ -92,6 +98,30 @@
     "cache_read_input_tokens": 1934917,
     "cache_creation_input_tokens": 84743,
     "added_after_runs": {
+      "batch_sizes_by_source": [
+        3,
+        3,
+        3,
+        2,
+        2,
+        3,
+        1,
+        2,
+        2,
+        1,
+        1,
+        1,
+        2,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        1,
+        0
+      ],
       "packages_not_in_image": [],
       "notebook_install_cells": 0,
       "download_commands": 0,

@@ -211,3 +211,15 @@ def test_added_after_runs_measures_are_kept_apart(tmp_path):
     assert late["tool_calls_touching_out"] == 1
     assert late["skill_text_in_tool_results"] is False
 
+
+
+def test_added_after_runs_batch_sizes_match_cells_by_source(tmp_path):
+    # a notebook regenerated with fresh IDs each time: same code, new IDs
+    side = side_with_snapshots(tmp_path, [
+        raw_nb([code("x = 1", 1, cid="a1"), code("print(x)", 2, [OUT], cid="b1")]),
+        raw_nb([code("x = 1", 1, cid="a2"), code("print(x)", 2, [OUT], cid="b2"),
+                code("print(x + 1)", 3, [OUT2], cid="c2")]),
+    ])
+    m = compute(side, pinned={})
+    assert m["batch_sizes"] == [2, 3]                                  # committed: by ID
+    assert m["added_after_runs"]["batch_sizes_by_source"] == [2, 1]    # by code text

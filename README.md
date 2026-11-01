@@ -21,7 +21,7 @@ The skill is one file, [`SKILL.md`](plugins/iterative-data-science/skills/iterat
 
 Five pairs ran on one brief, with Claude Sonnet 5.5 at effort `high`. All ten runs finished on their own, far inside the caps, and every final notebook re-ran from top to bottom in a fresh container.
 
-In all five pairs, the skill changed how Claude worked. With it, Claude added one to three cells at a time, ran them, read the output, and saved and opened each figure before writing the next section. Without it, Claude wrote the whole notebook first, ran it in one go, and reviewed the result at the end. The skill was written for an older Sonnet. The current model produced sound notebooks either way, so what this experiment shows is a change in how Claude works, not a rescue of a weak result.
+In all five pairs, the skill changed how Claude worked. With it, Claude added one to three cells at a time, ran them, read the output, and saved and opened each figure before writing the next section. Without it, Claude wrote the whole notebook first, ran it in one go, and reviewed the result at the end. The skill was written in March 2026, when the newest Claude models were Sonnet 4.6 and Opus 4.6; these runs used Sonnet 5.5. The current model produced sound notebooks either way, so what this experiment shows is a change in how Claude works, not a rescue of a weak result.
 
 ### The counts
 
@@ -83,7 +83,9 @@ Every numeric difference traces to a cleaning choice. In pair 1, the side withou
 
 ### Where the skill came from
 
-The SKILL.md says Claude cannot see inline notebook renders. That is the observation the skill was written from, with an older model. In these runs, every figure either side looked at came from a saved image file; neither side viewed figures through the notebook (`images_seen_by_source` in `metrics.json`).
+The author wrote the skill in March 2026; the file published here is dated 2026-03-07. The newest Claude models at the time were Claude Sonnet 4.6 (released February 17, 2026), Claude Opus 4.6 (February 5, 2026) and Claude Haiku 4.5 (October 2025). The experiment ran on Claude Sonnet 5.5, released later.
+
+The SKILL.md says Claude cannot see inline notebook renders. That is the observation the skill was written from, with the models of that time. In these runs, every figure either side looked at came from a saved image file; neither side viewed figures through the notebook (`images_seen_by_source` in `metrics.json`).
 
 ## What the experiment shows, and what it does not
 

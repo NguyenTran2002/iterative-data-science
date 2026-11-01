@@ -1,9 +1,12 @@
-"""Behavior counts for each side of a run, as defined in the design spec (section 7).
+"""Behavior counts for each side of a run, as defined in section 7 of the design spec
+(docs/design/2026-10-31-experiment-design.md).
 
-    uv run python -m analysis.metrics runs/<run-id> [--no-reexecute]
+    uv run python -m analysis.metrics ../runs/<run-id> [--no-reexecute] [--image NAME]
 
 Writes runs/<run-id>/metrics.json and system_prompts.json, and each side's
-system_prompt.txt. The definitions were fixed before any run.
+system_prompt.txt. The system prompt check reads each side's private/bodies/, which
+is not committed, so it needs a run made on this machine. The top-level counts were
+fixed before any run; those under "added_after_runs" were not.
 """
 import argparse
 import hashlib
@@ -164,9 +167,8 @@ def other_notebooks(side_dir: Path) -> list[str]:
 
 
 # --- measures added after the runs ---------------------------------------------
-# These were not fixed before the runs. They come from the whole-branch review's
-# deferred findings and are kept under "added_after_runs" so they are never
-# mistaken for the counts the spec fixed in advance.
+# These were defined after the runs had been seen. They are kept under
+# "added_after_runs" so they are never mistaken for the counts the spec fixed in advance.
 
 def _norm(name: str) -> str:
     return re.sub(r"[-_.]+", "-", name).lower()

@@ -1,4 +1,5 @@
-"""Acceptance checks for the clean-room brief (design spec, section 5).
+"""Acceptance checks for the clean-room brief (section 5 of the design spec,
+docs/design/2026-10-31-experiment-design.md).
 
 They check form only. Nobody judges whether a passing brief is good.
 """
@@ -12,7 +13,7 @@ TOP_LEVEL_ITEM = re.compile(r"^(?:[-*]\s|\*\*)")
 BACKTICKED = re.compile(r"`([A-Za-z_][A-Za-z0-9_]*)`")
 SNAKE_CASE = re.compile(r"\b[a-z][a-z0-9]*(?:_[a-z0-9]+)+\b")
 # The writer may only read dataset.md, so any mention of the portal or the dataset ID in
-# a tool call is flagged: a false alarm costs a redraw, a miss breaks the clean room.
+# a tool call is flagged: a false alarm costs a rerun of the writer, a miss breaks the clean room.
 DATA_MARKERS = ("cityofchicago.org", "wrvz-psew")
 
 

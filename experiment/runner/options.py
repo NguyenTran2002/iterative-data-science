@@ -1,10 +1,13 @@
-"""Agent SDK options for one run, as fixed by the design spec (section 4)."""
+"""Agent SDK options for one run, as fixed by section 4 of the design spec
+(docs/design/2026-10-31-experiment-design.md).
+"""
 import os
 from dataclasses import dataclass
 from pathlib import Path
 
 from claude_agent_sdk import ClaudeAgentOptions
 
+# Same list as launch/signin.py; repeated because only runner/ is copied into the image
 SIGNIN_VARS = ("CLAUDE_CODE_OAUTH_TOKEN", "ANTHROPIC_API_KEY")
 
 
@@ -30,6 +33,9 @@ def build_options(cfg: RunConfig) -> ClaudeAgentOptions:
     env = {
         "CLAUDE_CODE_SIMPLE_SYSTEM_PROMPT": "1",
         "DISABLE_AUTOUPDATER": "1",
+        # Telemetry is enabled for OTEL_LOG_RAW_API_BODIES, which writes each raw API request
+        # body to /out/private/bodies (read by analysis/system_prompt.py); the log and metric
+        # exporters are set to none.
         "CLAUDE_CODE_ENABLE_TELEMETRY": "1",
         "OTEL_LOGS_EXPORTER": "none",
         "OTEL_METRICS_EXPORTER": "none",

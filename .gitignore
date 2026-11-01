@@ -2,6 +2,7 @@
 runs/*/*/private/
 # the data is fetched by script and checked by checksum, never committed
 experiment/data/*.csv
+experiment/data/*.part
 .venv/
 __pycache__/
 .DS_Store

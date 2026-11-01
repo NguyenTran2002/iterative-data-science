@@ -89,7 +89,12 @@ def test_docker_args_never_carry_the_secret_value(tmp_path):
     assert args[-5:] == ["img", "--prompt-file", "/out/prompt.md", "--model", "m"]
 
 
-@pytest.mark.skipif(shutil.which("docker") is None, reason="needs docker")
+def docker_image_present() -> bool:
+    return shutil.which("docker") is not None and subprocess.run(
+        ["docker", "image", "inspect", "ids-experiment"], capture_output=True).returncode == 0
+
+
+@pytest.mark.skipif(not docker_image_present(), reason="needs docker and the ids-experiment image")
 def test_wait_all_reports_exit_codes_and_stops_on_timeout():
     run = lambda *cmd: subprocess.run(["docker", "run", "-d", "--entrypoint", cmd[0], "ids-experiment",
                                        *cmd[1:]],
